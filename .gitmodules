@@ -1,0 +1,3 @@
+[submodule "ThirdParty/cglm"]
+	path = ThirdParty/cglm
+	url = https://github.com/recp/cglm.git

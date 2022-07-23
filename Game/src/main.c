@@ -3,7 +3,8 @@
 int main (int argc, char **argv)
 {
     csGraphicsContext context;
-    if (csGraphicsContextInit(&context))
+    int result = csGraphicsContextInit(&context,1280,720,"New Window");
+    if (result)
     {
         printf("An error occurred while initializing the graphics context\n");
         return 1;
