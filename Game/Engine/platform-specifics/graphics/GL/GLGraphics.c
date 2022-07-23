@@ -14,22 +14,69 @@ int csGLGraphicsInitGLFW(csGLGraphicsContext *context, int width, int height, co
 
     if (!glfwInit())
     {
-        printf("An error occurred while initializing glfw !\n");
+        printf("GLFW failed to init!\n");
         return 2;
+    }
+    int window = csGLGraphicsAddWindow(context,width,height,name);
+    if (window)
+    {
+        glfwTerminate();
+        printf("An error occurred while creating the GLFW window!\n");
+        return 3;
+    }
+    csGLGraphicsAddWindow(context, 800, 600, "Second window");
+    context->main_window = 0;
+    glfwMakeContextCurrent(context->windows[0]);
+    return 0;
+}
+
+int csGLGraphicsAddWindow(csGLGraphicsContext *context, int width, int height, const char *name)
+{
+    if (!context)
+    {
+        printf("The context provided is null, cannot create new window\n");
+        return 1;
     }
     GLFWwindow *window = glfwCreateWindow(width, height, name, NULL, NULL);
     if (!window)
     {
-        glfwTerminate();
-        printf("An error occurred while creating the GLFW window!");
+        printf("An error occurred while creating the GLFW window!\n");
+        return 2;
+    }
+    context->window_count += 1;
+    context->windows = realloc(context->windows,sizeof(GLFWwindow*) * context->window_count);
+    if (context->windows == NULL)
+    {
+        printf("An error occurred when calling realloc\n");
         return 3;
     }
-    context->window_count = 1;
-    context->windows = malloc(sizeof(GLFWwindow *));
-    context->windows[0] = window;
-    context->main_window = 0;
-    glfwMakeContextCurrent(window);
+    context->windows[context->window_count - 1] = window;
     return 0;
+}
+
+int csGLGraphicsRemoveWindow(csGLGraphicsContext *context, int window_id)
+{
+    if (!context)
+    {
+        printf("The context provided is null, cannot create new window\n");
+        return 1;
+    }
+    if (window_id >= context->window_count)
+    {
+        printf("The window ID cannot be greater than tha windows count\n");
+        return 2;
+    }
+    GLFWwindow *window = context->windows[window_id];
+    if (!window)
+    {
+        printf("The window cannot be null!\n");
+        return 3;
+    }
+    glfwDestroyWindow(window);
+    context->window_count -= 1;
+    context->windows[window_id] = context->windows[context->window_count];
+    context->windows = realloc(context->windows, sizeof(GLFWwindow*) * context->window_count);
+    printf("Window %i successfully freed, the new window count is %i!\n",window_id,context->window_count);
 }
 
 int csGLGraphicsInitGLEW(csGLGraphicsContext *context)
@@ -86,6 +133,7 @@ int csGraphicsContextTerminate(csGraphicsContext *context)
                 {
                     glfwDestroyWindow(gl_context->windows[i]);
                 }
+                free(gl_context->windows);
                 gl_context->windows = NULL;
                 printf("freed windows\n");
             }
@@ -147,8 +195,7 @@ int csGraphicsMainLoop(csGraphicsContext *context)
         {
             if (glfwWindowShouldClose(gl_context->windows[i]))
             {
-                gl_context->window_count -= 1;
-                gl_context->windows[i] = 0;
+                csGLGraphicsRemoveWindow(gl_context,i);
             }
         }
         int result = csGraphicsFrameStart(context);

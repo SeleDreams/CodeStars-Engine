@@ -8,5 +8,6 @@ struct {
 } typedef csGLGraphicsContext;
 int csGLGraphicsInitGLFW(csGLGraphicsContext *context, int width, int height, const char *name);
 int csGLGraphicsInitGLEW(csGLGraphicsContext *context);
-
+int csGLGraphicsRemoveWindow(csGLGraphicsContext *context,int window_id);
+int csGLGraphicsAddWindow(csGLGraphicsContext *context, int width, int height, const char *name);
 #endif
