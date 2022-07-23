@@ -1,10 +1,12 @@
 #include <stdio.h>
-#include <platform-specifics/graphics/GL/GLGraphics.h>
+#include <core/graphics/Graphics.h>
 int main (int argc, char **argv)
 {
     csGraphicsContext context;
-    csGraphicsContextInit(&context);
-    printf("Hello World %p\n", &context);
-    csGraphicsContextFree(&context);
-    return 0;
+    if (csGraphicsContextInit(&context))
+    {
+        printf("An error occurred while initializing the graphics context\n");
+        return 1;
+    }
+    return csGraphicsMainLoop(&context);
 }
