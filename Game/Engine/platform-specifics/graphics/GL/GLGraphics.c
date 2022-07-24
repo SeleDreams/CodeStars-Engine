@@ -3,119 +3,132 @@
 #include <stdio.h>
 #include <GL/glew.h>
 #include "GLFWFunctions.h"
+#include <core/graphics/Mesh.h>
+#include <string.h>
 
-int csGLGraphicsInitGLEW(csGLGraphicsContext *context)
+int csGLGraphicsInitGLEW()
 {
-    if (!context)
-    {
-        printf("The context provided to glew is null, the allocation might have failed\n");
-        return 1;
-    }
     glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK)
+    return glewInit() != GLEW_OK;
+}
+
+void csGraphicsContextSetTargetFramerate(csGraphicsContext *context, int framerate)
+{
+    context->framerate = framerate + 1;
+}
+
+void csGraphicsDrawMesh(csGraphicsContext *context, Mesh *mesh, unsigned int shader_program)
+{
+    glUseProgram(shader_program);
+    glBindVertexArray(mesh->VAO);
+    glBindBuffer(GL_VERTEX_ARRAY,mesh->VBO);
+    glDrawArrays(GL_TRIANGLES,0,mesh->vertices_count / 3);
+    glBindVertexArray(0);
+}
+
+void csMeshCreatePrimitiveTriangle(Mesh **output)
+{
+    *output = malloc(sizeof(Mesh));
+    Mesh *mesh = *output;
+    float vertices[] =
+        {
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f};
+    mesh->vertices = malloc(sizeof(vertices));
+    mesh->vertices_count = sizeof(vertices) / sizeof(float);
+    memcpy(mesh->vertices, vertices, sizeof(vertices));
+    GLuint VAO, VBO;
+
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, mesh->vertices_count * sizeof(float), mesh->vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    mesh->VAO = VAO;
+    mesh->VBO = VBO;
+}
+
+void csMeshFree(Mesh *mesh)
+{
+    glDeleteBuffers(1, &mesh->VBO);
+    glDeleteVertexArrays(1, &mesh->VAO);
+    free(mesh->vertices);
+    free(mesh);
+}
+
+int csGLCreateShaderProgram(GLuint *output)
+{
+    GLuint shader = glCreateProgram();
+
+    if (!shader)
     {
+        printf("An error occurred while creating the shader\n");
+        return 1;
+    }
+
+    GLint result = 0;
+    GLchar error[1024] = {0};
+    glLinkProgram(shader);
+    glGetProgramiv(shader, GL_LINK_STATUS, &result);
+    if (!result)
+    {
+        glGetProgramInfoLog(shader, sizeof(error), NULL, error);
+        printf("Error when linking shader %s\n", error);
+        return 1;
+    }
+    glValidateProgram(shader);
+    glGetProgramiv(shader, GL_VALIDATE_STATUS, &result);
+    if (!result)
+    {
+        glGetProgramInfoLog(shader, sizeof(error), NULL, error);
+        printf("Error when validating shader %s\n", error);
         return 2;
     }
-
+    *output = shader;
     return 0;
 }
 
-int csGraphicsContextInit(csGraphicsContext *context, int width, int height, const char *name)
+int csGLGraphicsLoadShader(csGraphicsContext *context, const char *shader_data, GLenum shader_type, unsigned int *output)
 {
-    if (!context)
+    GLuint shader_program = *output;
+    if (output == 0)
     {
-        printf("The graphics context provided to csGraphicsContextInit is null!\n");
-        return 1;
-    }
-    *context = malloc(sizeof(csGLGraphicsContext));
-    printf("Initialized context\n");
-    if (csGLGraphicsInitGLFW((csGLGraphicsContext *)*context, width, height, name))
-    {
-        printf("An error occurred while initializing GLFW\n");
-        return 2;
-    }
-    printf("Initialized GLFW\n");
-    if (csGLGraphicsInitGLEW((csGLGraphicsContext *)*context))
-    {
-        printf("An error occurred while initializing GLEW\n");
-        return 3;
-    }
-    printf("Initialized GLEW\n");
-    return 0;
-}
-
-int csGraphicsContextTerminate(csGraphicsContext *context)
-{
-    if (context)
-    {
-        return csGLGraphicsTerminateGLFW(*context);
-    }
-}
-
-int csGraphicsFrameStart(csGraphicsContext *context)
-{
-    if (!context)
-    {
-        printf("The graphics context provided to csGraphicsFrameStart is null!");
-        return 1;
-    }
-    csGLGraphicsContext *gl_context = (csGLGraphicsContext *)*context;
-    for (int i = 0; i < gl_context->window_count; i++)
-    {
-        glfwMakeContextCurrent(gl_context->windows[i]);
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
-    glfwMakeContextCurrent(gl_context->windows[0]);
-    return 0;
-}
-
-int csGraphicsFrameEnd(csGraphicsContext *context)
-{
-    if (!context)
-    {
-        printf("The graphics context provided to csGraphicsFrameStart is null!");
-        return 1;
-    }
-    csGLGraphicsContext *gl_context = (csGLGraphicsContext *)*context;
-    for (int i = 0; i < gl_context->window_count; i++)
-    {
-        glfwSwapBuffers(gl_context->windows[i]);
-    }
-    glfwPollEvents();
-    return 0;
-}
-
-int csGraphicsMainLoop(csGraphicsContext *context)
-{
-    if (!context)
-    {
-        printf("The graphics context provided to csGraphicsFrameStart is null!");
-        return 1;
-    }
-    csGLGraphicsContext *gl_context = (csGLGraphicsContext *)*context;
-
-    while (!glfwWindowShouldClose(gl_context->windows[gl_context->main_window]))
-    {
-        for (int i = 0; i < gl_context->window_count; i++)
+        if (csGLCreateShaderProgram(&shader_program))
         {
-            if (glfwWindowShouldClose(gl_context->windows[i]))
-            {
-                csGLGraphicsRemoveWindow(gl_context, i);
-            }
-        }
-        int result = csGraphicsFrameStart(context);
-        if (result)
-        {
-            csGraphicsContextTerminate(context);
-            return result;
-        }
-        result = csGraphicsFrameEnd(context);
-        if (result)
-        {
-            csGraphicsContextTerminate(context);
-            return result;
+            return 1;
         }
     }
-    csGraphicsContextTerminate(context);
+    GLuint shader = glCreateShader(shader_type);
+    GLint length = strlen(shader_data);
+    glShaderSource(shader, 1, &shader_data, &length);
+    glCompileShader(shader);
+    GLint result = 0;
+    GLchar error[1024] = {0};
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+    if (!result)
+    {
+        glGetProgramInfoLog(shader, sizeof(error), NULL, error);
+        printf("Error when compiling shader %i : %s\n", shader_type, error);
+        return 1;
+    }
+    glAttachShader(shader_program, shader);
+    *output = shader_program;
     return 0;
+}
+
+int csGraphicsLoadVertexShader(csGraphicsContext *context, const char *shader_data, unsigned int *output)
+{
+    return csGLGraphicsLoadShader(context, shader_data, GL_VERTEX_SHADER, output);
+}
+
+int csGraphicsLoadFragmentShader(csGraphicsContext *context, const char *shader_data, unsigned int *output)
+{
+    return csGLGraphicsLoadShader(context, shader_data, GL_FRAGMENT_SHADER, output);
 }

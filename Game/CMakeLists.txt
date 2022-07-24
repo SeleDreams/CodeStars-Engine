@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 project(Game)
 add_executable(Game src/main.c)
+SET(GCC_COVERAGE_COMPILE_FLAGS "-Wincompatible-pointer-types -Werror=incompatible-pointer-types")
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Engine)
 add_subdirectory(Engine)
 target_include_directories(Game PRIVATE include Engine)

@@ -7,3 +7,4 @@ GLFWFunctions.c
 )
 target_include_directories(gl-graphics PRIVATE ${GLEW_INCLUDE_DIR} ${glfw3_INCLUDE_DIR})
 set(LINK_TARGETS ${LINK_TARGETS} gl-graphics ${GLEW_LIBRARIES} glfw OpenGL m PARENT_SCOPE)
+target_link_libraries(gl-graphics core-graphics)

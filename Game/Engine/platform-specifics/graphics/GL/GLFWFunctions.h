@@ -1,8 +1,8 @@
 #ifndef CS_GLFWFUNCTIONS_H
 #define CS_GLFWFUNCTIONS_H 
 #include "GLGraphics.h"
-int csGLGraphicsRemoveWindow(csGLGraphicsContext *context,int window_id);
-int csGLGraphicsAddWindow(csGLGraphicsContext *context, int width, int height, const char *name);
-int csGLGraphicsInitGLFW(csGLGraphicsContext *context, int width, int height, const char *name);
-int csGLGraphicsTerminateGLFW(csGLGraphicsContext *context);
+int csGLFWGraphicsRemoveWindow(csGraphicsContext *context,unsigned int window_id);
+int csGLFWGraphicsCreateWindow(csGraphicsContext *context, unsigned int width,unsigned int height, const char *name);
+int csGLFWGraphicsInit(csGraphicsContext *context,unsigned int width, unsigned int height, const char *name);
+void csGLFWGraphicsTerminate(csGraphicsContext *context);
 #endif
