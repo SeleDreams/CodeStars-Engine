@@ -1,12 +1,12 @@
 #ifndef CS_MESH_H
 #define CS_MESH_H
-struct Mesh
+typedef struct Mesh
 {
     float *vertices;
     unsigned int vertices_count;
     unsigned int VAO;
     unsigned int VBO;
-} typedef Mesh;
+} Mesh;
 
 void csMeshCreatePrimitiveTriangle(Mesh **output);
 void csMeshFree(Mesh *mesh);

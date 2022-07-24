@@ -99,7 +99,7 @@ int csGLCreateShaderProgram(GLuint *output)
     return 0;
 }
 
-int csGLGraphicsLoadShader(csGraphicsContext *context, const char *shader_data, GLenum shader_type, GLuint shader_program)
+int csGLGraphicsLoadShader(const char *shader_data, GLenum shader_type, GLuint shader_program)
 {
     GLuint shader = glCreateShader(shader_type);
     GLint length = strlen(shader_data);
@@ -119,18 +119,18 @@ int csGLGraphicsLoadShader(csGraphicsContext *context, const char *shader_data, 
 }
 
 
-unsigned int csGraphicsLoadShader(csGraphicsContext *context, const char *vertex_shader_data,const char* fragment_shader_data)
+unsigned int csGraphicsLoadShader(const char *vertex_shader_data,const char* fragment_shader_data)
 {
     GLuint program;
     if (csGLCreateShaderProgram(&program))
     {
         return 0;
     }
-    if (csGLGraphicsLoadShader(context, vertex_shader_data, GL_VERTEX_SHADER, program))
+    if (csGLGraphicsLoadShader(vertex_shader_data, GL_VERTEX_SHADER, program))
     {
         return 0;
     }
-    if (csGLGraphicsLoadShader(context, fragment_shader_data, GL_FRAGMENT_SHADER,program))
+    if (csGLGraphicsLoadShader(fragment_shader_data, GL_FRAGMENT_SHADER,program))
     {
         return 0;
     }

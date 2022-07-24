@@ -22,7 +22,6 @@ int csGLFWGraphicsCreateWindow(csGraphicsContext *context, unsigned int width, u
     window->width = width;
     window->name = name;
     glfwGetFramebufferSize(window->window,&window->buffer_width,&window->buffer_height);
-    glViewport(0,0, window->buffer_width,window->buffer_height);
     if (!window || !window->window)
     {
         printf("An error occurred while creating the GLFW window!\n");
@@ -39,7 +38,7 @@ int csGLFWGraphicsCreateWindow(csGraphicsContext *context, unsigned int width, u
     return 0;
 }
 
-int csGLFWGraphicsRemoveWindow(csGraphicsContext *context, unsigned int window_id)
+int csGLFWGraphicsRemoveWindow(csGraphicsContext *context, int window_id)
 {
     if (!context)
     {
@@ -63,6 +62,7 @@ int csGLFWGraphicsRemoveWindow(csGraphicsContext *context, unsigned int window_i
     context->windows[window_id] = context->windows[context->window_count];
     context->windows = realloc(context->windows, sizeof(csGraphicsWindow *) * context->window_count);
     printf("Window %i successfully freed, the new window count is %i!\n", window_id, context->window_count);
+    return 0;
 }
 
 int csGLFWGraphicsInit(csGraphicsContext *context, unsigned int width, unsigned int height, const char *name)

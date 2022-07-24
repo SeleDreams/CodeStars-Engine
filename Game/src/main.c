@@ -13,18 +13,14 @@ int LoadFile(const char *path, char **output)
     fseek(f, 0, SEEK_END);
     long length = ftell(f);
     rewind(f);
-    char buffer[length + 1];
-
     *output = malloc((length + 1) * sizeof(char));
-    int last_char = fread(buffer, sizeof(char), length, f);
-    buffer[last_char] = '\0';
-    memcpy(*output,buffer, length + 1);
-    //(*output)[length] = "\0";
+    int last_char = fread(*output, sizeof(char), length, f);
+    (*output)[last_char] = '\0';
     fclose(f);
     return 0;
 }
 
-int main(int argc, char **argv)
+int main()
 {
     char *vertex_shader = NULL;
     char *fragment_shader = NULL;
@@ -39,7 +35,7 @@ int main(int argc, char **argv)
     Mesh *mesh = NULL;
     csMeshCreatePrimitiveTriangle(&mesh);
     csGraphicsContextSetTargetFramerate(context, 60);
-    unsigned int shader_program = csGraphicsLoadShader(context, vertex_shader, fragment_shader);
+    unsigned int shader_program = csGraphicsLoadShader(vertex_shader, fragment_shader);
     if (!shader_program)
     {
         printf("An error occurred while creating the shader!\n");
