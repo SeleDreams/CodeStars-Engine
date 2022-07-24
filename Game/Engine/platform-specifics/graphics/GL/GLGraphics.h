@@ -21,6 +21,6 @@ struct csGraphicsContext
 } typedef csGraphicsContext;
 
 int csGLGraphicsInitGLEW();
-int csGLGraphicsLoadShader(csGraphicsContext *context, const char *shader_data, GLenum shader_type, unsigned int *output);
+int csGLGraphicsLoadShader(csGraphicsContext *context, const char *shader_data, GLenum shader_type, GLuint program);
 int csGLCreateShaderProgram(GLuint *output);
 #endif

@@ -39,15 +39,10 @@ int main(int argc, char **argv)
     Mesh *mesh = NULL;
     csMeshCreatePrimitiveTriangle(&mesh);
     csGraphicsContextSetTargetFramerate(context, 60);
-    unsigned int shader_program = 0;
-    if (csGraphicsLoadVertexShader(context, vertex_shader, &shader_program))
+    unsigned int shader_program = csGraphicsLoadShader(context, vertex_shader, fragment_shader);
+    if (!shader_program)
     {
-        printf("An error occurred while loading the vertex shader!\n");
-        return 1;
-    }
-    if (csGraphicsLoadFragmentShader(context, fragment_shader, &shader_program))
-    {
-        printf("An error occurred while loading the fragment shader\n");
+        printf("An error occurred while creating the shader!\n");
         return 1;
     }
     while (csGraphicsUpdate(context))

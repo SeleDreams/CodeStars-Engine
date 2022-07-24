@@ -72,10 +72,13 @@ int csGLFWGraphicsInit(csGraphicsContext *context, unsigned int width, unsigned 
         printf("The context provided to GLUT is null, the allocation might have failed\n");
         return 1;
     }
+    
     glfwWindowHint(GLFW_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    
     if (!glfwInit())
     {
         printf("GLFW failed to init!\n");

@@ -19,6 +19,9 @@ void csGraphicsContextSetTargetFramerate(csGraphicsContext *context, int framera
 
 void csGraphicsDrawMesh(csGraphicsContext *context, Mesh *mesh, unsigned int shader_program)
 {
+    csGraphicsWindow *window = context->windows[context->main_window];
+    glViewport(0,0,window->buffer_width,window->buffer_height);
+    printf("shader program id : %i\n", shader_program);
     glUseProgram(shader_program);
     glBindVertexArray(mesh->VAO);
     glBindBuffer(GL_VERTEX_ARRAY,mesh->VBO);
@@ -79,7 +82,8 @@ int csGLCreateShaderProgram(GLuint *output)
     glGetProgramiv(shader, GL_LINK_STATUS, &result);
     if (!result)
     {
-        glGetProgramInfoLog(shader, sizeof(error), NULL, error);
+        GLint size;
+        glGetProgramInfoLog(shader, sizeof(error), &size, error);
         printf("Error when linking shader %s\n", error);
         return 1;
     }
@@ -95,16 +99,8 @@ int csGLCreateShaderProgram(GLuint *output)
     return 0;
 }
 
-int csGLGraphicsLoadShader(csGraphicsContext *context, const char *shader_data, GLenum shader_type, unsigned int *output)
+int csGLGraphicsLoadShader(csGraphicsContext *context, const char *shader_data, GLenum shader_type, GLuint shader_program)
 {
-    GLuint shader_program = *output;
-    if (output == 0)
-    {
-        if (csGLCreateShaderProgram(&shader_program))
-        {
-            return 1;
-        }
-    }
     GLuint shader = glCreateShader(shader_type);
     GLint length = strlen(shader_data);
     glShaderSource(shader, 1, &shader_data, &length);
@@ -114,21 +110,29 @@ int csGLGraphicsLoadShader(csGraphicsContext *context, const char *shader_data, 
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
     if (!result)
     {
-        glGetProgramInfoLog(shader, sizeof(error), NULL, error);
+        glGetShaderInfoLog(shader, sizeof(error), NULL, error);
         printf("Error when compiling shader %i : %s\n", shader_type, error);
         return 1;
     }
     glAttachShader(shader_program, shader);
-    *output = shader_program;
     return 0;
 }
 
-int csGraphicsLoadVertexShader(csGraphicsContext *context, const char *shader_data, unsigned int *output)
-{
-    return csGLGraphicsLoadShader(context, shader_data, GL_VERTEX_SHADER, output);
-}
 
-int csGraphicsLoadFragmentShader(csGraphicsContext *context, const char *shader_data, unsigned int *output)
+unsigned int csGraphicsLoadShader(csGraphicsContext *context, const char *vertex_shader_data,const char* fragment_shader_data)
 {
-    return csGLGraphicsLoadShader(context, shader_data, GL_FRAGMENT_SHADER, output);
+    GLuint program;
+    if (csGLCreateShaderProgram(&program))
+    {
+        return 0;
+    }
+    if (csGLGraphicsLoadShader(context, vertex_shader_data, GL_VERTEX_SHADER, program))
+    {
+        return 0;
+    }
+    if (csGLGraphicsLoadShader(context, fragment_shader_data, GL_FRAGMENT_SHADER,program))
+    {
+        return 0;
+    }
+    return program;
 }

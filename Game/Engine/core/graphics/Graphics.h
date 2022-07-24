@@ -11,6 +11,5 @@ void csGraphicsFrameEnd(struct csGraphicsContext *context);
 int csGraphicsUpdate(struct csGraphicsContext *context);
 void csGraphicsWaitForNextFrame(int framerate);
 void csGraphicsDrawMesh(struct csGraphicsContext *context, struct Mesh *mesh, unsigned int shader_program);
-int csGraphicsLoadVertexShader(struct csGraphicsContext *context, const char *shader_data, unsigned int *output);
-int csGraphicsLoadFragmentShader(struct csGraphicsContext *context, const char *shader_data,unsigned int *output);
+unsigned int csGraphicsLoadShader(struct csGraphicsContext *context, const char *vertex_shader_data,const char* fragment_shader_data);
 #endif
