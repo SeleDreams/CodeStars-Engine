@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(Game)
 add_executable(Game src/main.c)
-SET(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Werror=incompatible-pointer-types")
+SET(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Werror")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Engine)
 add_subdirectory(Engine)

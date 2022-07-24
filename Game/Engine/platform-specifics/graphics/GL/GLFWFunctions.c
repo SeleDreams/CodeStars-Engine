@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "GLFWFunctions.h"
 #include "GLGraphics.h"
-#include <GLFW/glfw3.h>
 #include <math.h>
 #include <time.h>
 
@@ -21,7 +20,7 @@ int csGLFWGraphicsCreateWindow(csGraphicsContext *context, unsigned int width, u
     window->height = height;
     window->width = width;
     window->name = name;
-    glfwGetFramebufferSize(window->window,&window->buffer_width,&window->buffer_height);
+    glfwGetFramebufferSize(window->window, &window->buffer_width, &window->buffer_height);
     if (!window || !window->window)
     {
         printf("An error occurred while creating the GLFW window!\n");
@@ -72,13 +71,13 @@ int csGLFWGraphicsInit(csGraphicsContext *context, unsigned int width, unsigned 
         printf("The context provided to GLUT is null, the allocation might have failed\n");
         return 1;
     }
-    
+
     glfwWindowHint(GLFW_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
+
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    
+
     if (!glfwInit())
     {
         printf("GLFW failed to init!\n");
@@ -89,7 +88,7 @@ int csGLFWGraphicsInit(csGraphicsContext *context, unsigned int width, unsigned 
     context->main_window = 0;
     context->windows = NULL;
     context->framerate = 60;
-    
+
     int window = csGLFWGraphicsCreateWindow(context, width, height, name);
     if (window)
     {
@@ -98,6 +97,11 @@ int csGLFWGraphicsInit(csGraphicsContext *context, unsigned int width, unsigned 
         return 3;
     }
     glfwMakeContextCurrent(context->windows[0]->window);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        printf("Failed to initialize GLAD\n");
+        return -1;
+    }
     return 0;
 }
 
@@ -128,17 +132,19 @@ void csGraphicsFrameStart(csGraphicsContext *context)
         glfwMakeContextCurrent(context->windows[i]->window);
         glClear(GL_COLOR_BUFFER_BIT);
     }
-    glfwMakeContextCurrent(context->windows[0]->window);
+    csGraphicsWindow *current_window = context->windows[context->main_window];
+    glfwMakeContextCurrent(current_window->window);
+    glViewport(0,0,current_window->buffer_width,current_window->buffer_height);
 }
 
-void csGraphicsFrameEnd(csGraphicsContext *context)
+float csGraphicsFrameEnd(csGraphicsContext *context)
 {
     for (int i = 0; i < context->window_count; i++)
     {
         glfwSwapBuffers(context->windows[i]->window);
     }
     glfwPollEvents();
-    csGraphicsWaitForNextFrame(context->framerate);
+    return csGraphicsWaitForNextFrame(context->framerate);
 }
 
 int csGraphicsUpdate(csGraphicsContext *context)
@@ -200,12 +206,6 @@ int csGraphicsContextCreate(csGraphicsContext **context, int width, int height, 
         return 3;
     }
     printf("Initialized GLFW\n");
-    if (csGLGraphicsInitGLEW())
-    {
-        printf("An error occurred while initializing GLEW\n");
-        return 4;
-    }
-    printf("Initialized GLEW\n");
     initialized = 1;
     return 0;
 }

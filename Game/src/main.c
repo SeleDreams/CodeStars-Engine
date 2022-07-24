@@ -1,8 +1,10 @@
 #include <stdio.h>
-#include <core/graphics/Graphics.h>
-#include <core/graphics/Mesh.h>
 #include <stdlib.h>
 #include <string.h>
+#include <core/graphics/Graphics.h>
+#include <core/graphics/Mesh.h>
+#include <core/graphics/Shader.h>
+
 int LoadFile(const char *path, char **output)
 {
     FILE *f = fopen(path, "r");
@@ -26,28 +28,29 @@ int main()
     char *fragment_shader = NULL;
     LoadFile("./Shaders/vertex.glsl", &vertex_shader);
     LoadFile("./Shaders/fragment.glsl", &fragment_shader);
-    struct csGraphicsContext *context = NULL;
+    csGraphicsContext *context = NULL;
     if (csGraphicsContextCreate(&context, 800, 600, "New Window"))
     {
         printf("An error occurred while initializing the graphics context\n");
         return 1;
     }
-    Mesh *mesh = NULL;
+    csMesh *mesh = NULL;
     csMeshCreatePrimitiveTriangle(&mesh);
     csGraphicsContextSetTargetFramerate(context, 60);
-    unsigned int shader_program = csGraphicsLoadShader(vertex_shader, fragment_shader);
-    if (!shader_program)
+    csShader *shader = NULL;
+    int result = csShaderLoad(&shader, vertex_shader, fragment_shader);
+    if (result)
     {
-        printf("An error occurred while creating the shader!\n");
+        printf("An error occurred while loadings the shaders!\n");
         return 1;
     }
     while (csGraphicsUpdate(context))
     {
         csGraphicsFrameStart(context);
-
-        csGraphicsDrawMesh(context,mesh,shader_program);
-
-        csGraphicsFrameEnd(context);
+        csMeshDraw(mesh, shader);
+            // csGraphicsDrawMesh(context,mesh,shader_program);
+        float delta = csGraphicsFrameEnd(context);
+        printf("delta : %f fps : %i\n", delta, (int)(1.0 / delta));
     }
     csGraphicsContextDestroy(&context);
     csMeshFree(mesh);

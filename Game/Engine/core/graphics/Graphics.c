@@ -1,11 +1,11 @@
 #include "Graphics.h"
 #include <time.h>
 
-void csGraphicsWaitForNextFrame(int framerate)
+float csGraphicsWaitForNextFrame(int framerate)
 {
-    static double last_frame_seconds = 0;
-    static double current_frame_seconds = 0;
-    static double delta;
+    static float last_frame_seconds = 0;
+    static float current_frame_seconds = 0;
+    static float delta;
 
     delta = 0.0f;
 
@@ -20,5 +20,5 @@ void csGraphicsWaitForNextFrame(int framerate)
         delta = current_frame_seconds - last_frame_seconds;
     }
     last_frame_seconds = current_frame_seconds;
-    //printf("delta : %f fps : %i\n", delta, (int)(1.0 / delta));
+    return delta;
 }
