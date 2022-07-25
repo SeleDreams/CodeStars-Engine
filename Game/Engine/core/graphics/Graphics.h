@@ -9,7 +9,7 @@ void csGraphicsContextDestroy(csGraphicsContext **context);
 float csGraphicsContextGetDelta(const csGraphicsContext *context);
 int csGraphicsContextGetTargetFramerate(const csGraphicsContext *context);
 void csGraphicsFrameStart(csGraphicsContext *context);
-float csGraphicsFrameEnd(csGraphicsContext *context);
+void csGraphicsFrameEnd(csGraphicsContext *context);
 int csGraphicsUpdate(csGraphicsContext *context);
 float csGraphicsWaitForNextFrame(int framerate);
 #endif

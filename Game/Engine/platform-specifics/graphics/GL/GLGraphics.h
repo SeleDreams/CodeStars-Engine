@@ -1,7 +1,7 @@
 #ifndef CS_GLGRAPHICS_H
 #define CS_GLGRAPHICS_H
 #include <core/graphics/Graphics.h>
-#include <glad/glad.h>
+#include <GL/glew.h>
 typedef struct csGraphicsWindow
 {
     void *window;

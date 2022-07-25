@@ -36,9 +36,12 @@ int main()
     }
     csMesh *mesh = NULL;
     csMeshCreatePrimitiveTriangle(&mesh);
-    csGraphicsContextSetTargetFramerate(context, 60);
+    const int framerate = 60;
+    csGraphicsContextSetTargetFramerate(context, framerate);
     csShader *shader = NULL;
     int result = csShaderLoad(&shader, vertex_shader, fragment_shader);
+    free(vertex_shader);
+    free(fragment_shader);
     if (result)
     {
         printf("An error occurred while loadings the shaders!\n");
@@ -48,11 +51,10 @@ int main()
     {
         csGraphicsFrameStart(context);
         csMeshDraw(mesh, shader);
-            // csGraphicsDrawMesh(context,mesh,shader_program);
-        float delta = csGraphicsFrameEnd(context);
+        csGraphicsFrameEnd(context);
+        float delta = csGraphicsWaitForNextFrame(framerate);
         printf("delta : %f fps : %i\n", delta, (int)(1.0 / delta));
     }
     csGraphicsContextDestroy(&context);
     csMeshFree(mesh);
-    free(vertex_shader);
 }

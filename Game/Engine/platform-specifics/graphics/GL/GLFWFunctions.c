@@ -97,10 +97,12 @@ int csGLFWGraphicsInit(csGraphicsContext *context, unsigned int width, unsigned 
         return 3;
     }
     glfwMakeContextCurrent(context->windows[0]->window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    glewExperimental = GL_TRUE;
+    
+    if (glewInit() != GLEW_OK)
     {
-        printf("Failed to initialize GLAD\n");
-        return -1;
+        printf("Failed to initialize GLEW\n");
+        return 4;
     }
     return 0;
 }
@@ -137,14 +139,13 @@ void csGraphicsFrameStart(csGraphicsContext *context)
     glViewport(0,0,current_window->buffer_width,current_window->buffer_height);
 }
 
-float csGraphicsFrameEnd(csGraphicsContext *context)
+void csGraphicsFrameEnd(csGraphicsContext *context)
 {
     for (int i = 0; i < context->window_count; i++)
     {
         glfwSwapBuffers(context->windows[i]->window);
     }
     glfwPollEvents();
-    return csGraphicsWaitForNextFrame(context->framerate);
 }
 
 int csGraphicsUpdate(csGraphicsContext *context)
