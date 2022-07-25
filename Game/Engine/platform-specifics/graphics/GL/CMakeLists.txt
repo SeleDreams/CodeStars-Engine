@@ -1,5 +1,5 @@
 find_package(OpenGL REQUIRED)
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 add_library(gl-graphics
 GLGraphics.c
@@ -11,7 +11,7 @@ if(WIN32)
 set(glew_lib glew32)
 set(glfw_lib glfw3)
 else()
-set(glew_lib glew)
+set(glew_lib GLEW)
 set(glfw_lib glfw)
 endif()
 
