@@ -1,8 +1,0 @@
-cmake_minimum_required(VERSION 3.13)
-project(CodeStars-Engine)
-add_library(CodeStars-Engine lib.c)
-set(LINK_TARGETS "")
-add_subdirectory(core)
-add_subdirectory(platform-specifics)
-target_include_directories(CodeStars-Engine PRIVATE .)
-target_link_libraries(CodeStars-Engine ${LINK_TARGETS})

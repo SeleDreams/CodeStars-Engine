@@ -1,0 +1,20 @@
+{
+    "cmake.configureSettings": {
+        "CMAKE_INSTALL_PREFIX":"${workspaceFolder}/build",
+        "CMAKE_FIND_DEBUG_MODE": "OFF",
+        "CMAKE_VERBOSE_MAKEFILE" : "ON",
+    },
+    "cmake.generator": "MinGW Makefiles",
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}/Engine"
+    },
+    "files.associations": {
+        "time.h": "c",
+        "nds.h": "c",
+        "background.h": "c",
+        "sassert.h": "c",
+        "boxtest.h": "c",
+        "stdlib.h": "c",
+        "mesh.h": "c"
+    }
+}

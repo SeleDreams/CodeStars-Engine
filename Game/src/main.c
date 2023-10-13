@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <time.h>
+
 #include <string.h>
 #include <core/graphics/Graphics.h>
 #include <core/graphics/Mesh.h>
@@ -57,4 +60,6 @@ int main()
     }
     csGraphicsContextDestroy(&context);
     csMeshFree(mesh);
+    printf("Hello World!\n");
+    return 0;
 }

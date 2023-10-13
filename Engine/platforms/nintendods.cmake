@@ -1,0 +1,5 @@
+if (CMAKE_SYSTEM_NAME STREQUAL "NintendoDS")
+unset(USE_GL)
+unset(USE_GLFW)
+unset(USE_GLEW)
+endif()

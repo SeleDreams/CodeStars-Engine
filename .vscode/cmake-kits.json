@@ -1,0 +1,6 @@
+[
+    {
+        "name": "Nintendo DS",
+        "toolchainFile": "${workspaceFolder}/Engine/cmake/NDS.cmake"
+    }
+]

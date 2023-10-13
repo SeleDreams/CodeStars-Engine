@@ -1,3 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
-project(CodeStars)
+cmake_minimum_required(VERSION 3.20)
+project(CodeStars LANGUAGES C)
+add_subdirectory(Engine)
 add_subdirectory(Game)
+target_include_directories(Game PRIVATE Engine)
