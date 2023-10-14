@@ -1,23 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "GLFWFunctions.h"
+#include "SDLFunctions.h"
 #include "GLGraphics.h"
 #include <math.h>
 #include <time.h>
 #include <assert.h>
 
 static const csGraphicsContextImpl csGLGraphicsContextImpl = {
-    .Create = csGLFWGraphicsContextCreate,
-    .Destroy = csGLFWGraphicsContextDestroy,
+    .Create = csSDLGraphicsContextCreate,
+    .Destroy = csSDLGraphicsContextDestroy,
     .GetDelta = csGLGraphicsContextGetDelta,
     .SetTargetFramerate = csGLGraphicsContextSetTargetFramerate,
     .GetTargetFramerate = csGLGraphicsContextGetTargetFramerate,
-    .FrameStart = csGLFWGraphicsFrameStart,
-    .FrameEnd = csGLFWGraphicsFrameEnd,
-    .Update = csGLFWGraphicsUpdate
+    .FrameStart = csSDLGraphicsFrameStart,
+    .FrameEnd = csSDLGraphicsFrameEnd,
+    .Update = csSDLGraphicsUpdate
 };
 
-int csGLFWGraphicsCreateWindow(csGraphicsContext context, unsigned int width, unsigned int height, const char *name)
+int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, unsigned int height, const char *name)
 {
     if (!context)
     {
@@ -52,7 +52,7 @@ int csGLFWGraphicsCreateWindow(csGraphicsContext context, unsigned int width, un
     return 0;
 }
 
-int csGLFWGraphicsRemoveWindow(csGraphicsContext context, int window_id)
+int csSDLGraphicsRemoveWindow(csGraphicsContext context, int window_id)
 {
     if (!context)
     {
@@ -81,7 +81,7 @@ int csGLFWGraphicsRemoveWindow(csGraphicsContext context, int window_id)
     return 0;
 }
 
-int csGLFWGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned int height, const char *name)
+int csSDLGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned int height, const char *name)
 {
     if (!context)
     {
@@ -103,7 +103,7 @@ int csGLFWGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned
     ((csGLGraphicsContext*)context)->windows = NULL;
     ((csGLGraphicsContext*)context)->framerate = 60;
 
-    int window = csGLFWGraphicsCreateWindow(context, width, height, name);
+    int window = csSDLGraphicsCreateWindow(context, width, height, name);
     if (window)
     {
         SDL_Quit();
@@ -117,7 +117,7 @@ int csGLFWGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned
     return 0;
 }
 
-void csGLFWGraphicsTerminate(csGraphicsContext context)
+void csSDLGraphicsTerminate(csGraphicsContext context)
 {
     if (context)
     {
@@ -126,7 +126,7 @@ void csGLFWGraphicsTerminate(csGraphicsContext context)
 
             for (int i = ((csGLGraphicsContext*)context)->window_count - 1; i >= 0; i--)
             {
-                csGLFWGraphicsRemoveWindow(context, i);
+                csSDLGraphicsRemoveWindow(context, i);
             }
         }
         free(context);
@@ -137,7 +137,7 @@ void csGLFWGraphicsTerminate(csGraphicsContext context)
     printf("Terminated SDL\n");
 }
 
-void csGLFWGraphicsFrameStart(csGraphicsContext context)
+void csSDLGraphicsFrameStart(csGraphicsContext context)
 {
     for (int i = 0; i < ((csGLGraphicsContext*)context)->window_count; i++)
     {
@@ -150,7 +150,7 @@ void csGLFWGraphicsFrameStart(csGraphicsContext context)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void csGLFWGraphicsFrameEnd(csGraphicsContext context)
+void csSDLGraphicsFrameEnd(csGraphicsContext context)
 {
     for (int i = 0; i < ((csGLGraphicsContext*)context)->window_count; i++)
     {
@@ -158,7 +158,7 @@ void csGLFWGraphicsFrameEnd(csGraphicsContext context)
     }
 }
 
-int csGLFWGraphicsUpdate(csGraphicsContext context)
+int csSDLGraphicsUpdate(csGraphicsContext context)
 {
     if (!context)
     {
@@ -171,7 +171,7 @@ int csGLFWGraphicsUpdate(csGraphicsContext context)
         if (event.type == SDL_QUIT){
             for (int i = 0;i < ((csGLGraphicsContext*)context)->window_count;i++)
             {
-                csGLFWGraphicsRemoveWindow(context,i);
+                csSDLGraphicsRemoveWindow(context,i);
             }
             return 0;
         }
@@ -179,11 +179,11 @@ int csGLFWGraphicsUpdate(csGraphicsContext context)
         return 1;
 }
 
-void csGLFWGraphicsContextDestroy(csGraphicsContext *context)
+void csSDLGraphicsContextDestroy(csGraphicsContext *context)
 {
     if (*context)
     {
-        csGLFWGraphicsTerminate(*context);
+        csSDLGraphicsTerminate(*context);
     }
     *context = NULL;
 }
@@ -192,7 +192,7 @@ void csGLGraphicsInit(void)
     csGraphicsInit(&csGLGraphicsContextImpl);
 }
 
-int csGLFWGraphicsContextCreate(csGraphicsContext *context, int width, int height, const char *name)
+int csSDLGraphicsContextCreate(csGraphicsContext *context, int width, int height, const char *name)
 {
     static int initialized = 0;
     if (initialized)
@@ -212,7 +212,7 @@ int csGLFWGraphicsContextCreate(csGraphicsContext *context, int width, int heigh
         return 2;
     }
     printf("Initialized context\n");
-    if (csGLFWGraphicsCreate(*context, width, height, name))
+    if (csSDLGraphicsCreate(*context, width, height, name))
     {
         printf("An error occurred while initializing SDL\n");
         return 3;

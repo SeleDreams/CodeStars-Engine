@@ -8,7 +8,7 @@ add_library(gl-graphics
 GLGraphics.c
 GLShader.c
 GLMesh.c
-GLFWFunctions.c
+SDLFunctions.c
 )
 target_include_directories(gl-graphics PRIVATE ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS})
 target_link_libraries(gl-graphics core-graphics core-maths SDL2 EGL GLESv2)

@@ -41,6 +41,7 @@
         "sdl_opengles2.h": "c",
         "glext.h": "c",
         "sdl_opengles2_gl2platform.h": "c",
-        "sdl_opengles2_gl2.h": "c"
+        "sdl_opengles2_gl2.h": "c",
+        "sdlfunctions.h": "c"
     }
 }

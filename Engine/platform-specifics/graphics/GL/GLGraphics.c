@@ -1,5 +1,4 @@
 #include "GLGraphics.h"
-#include "GLFWFunctions.h"
 #include <core/graphics/Mesh.h>
 
 void csGLGraphicsContextSetTargetFramerate(csGraphicsContext context, int framerate)
