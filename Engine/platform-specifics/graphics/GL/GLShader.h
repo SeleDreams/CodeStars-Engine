@@ -1,7 +1,8 @@
 #ifndef CS_GLSHADER_H
 #define CS_GLSHADER_H
 #include "GLGraphics.h"
-typedef struct csShader{
+typedef struct glShader{
+    GLuint uModelTransform;
     GLuint program;
-} csShader;
+} glShader;
 #endif

@@ -1,13 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <time.h>
-
-#include <string.h>
-#include <core/graphics/Graphics.h>
-#include <core/graphics/Mesh.h>
-#include <core/graphics/Shader.h>
-
+#include <CodeStarsEngine.h>
+#include <platform-specifics/graphics/GL/GLGraphics.h>
 int LoadFile(const char *path, char **output)
 {
     FILE *f = fopen(path, "r");
@@ -25,13 +19,14 @@ int LoadFile(const char *path, char **output)
     return 0;
 }
 
-int main()
+int main(void)
 {
     char *vertex_shader = NULL;
     char *fragment_shader = NULL;
     LoadFile("./Shaders/vertex.glsl", &vertex_shader);
     LoadFile("./Shaders/fragment.glsl", &fragment_shader);
-    csGraphicsContext *context = NULL;
+    csGLGraphicsInit();
+    csGraphicsContext context = NULL;
     if (csGraphicsContextCreate(&context, 800, 600, "New Window"))
     {
         printf("An error occurred while initializing the graphics context\n");
@@ -55,8 +50,8 @@ int main()
         csGraphicsFrameStart(context);
         csMeshDraw(mesh, shader);
         csGraphicsFrameEnd(context);
-        float delta = csGraphicsWaitForNextFrame(framerate);
-        printf("delta : %f fps : %i\n", delta, (int)(1.0 / delta));
+        csGraphicsWaitForNextFrame(framerate);
+       // printf("delta : %f fps : %i\n", delta, (int)(1.0 / delta));
     }
     csGraphicsContextDestroy(&context);
     csMeshFree(mesh);

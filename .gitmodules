@@ -1,0 +1,3 @@
+[submodule "libs/fptc-lib"]
+	path = Engine/libs/fptc-lib
+	url = https://github.com/SeleDreams/fptc-lib.git

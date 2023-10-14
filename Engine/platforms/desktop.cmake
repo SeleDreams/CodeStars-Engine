@@ -1,4 +1,4 @@
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if (WIN32)
 option(USE_GL "Build the OpenGL section of the engine" ON)
 option(USE_GLFW "Use GLFW for windows" ON)
 option(USE_GLEW "Use GLEW for loading OpenGL extensions" ON)

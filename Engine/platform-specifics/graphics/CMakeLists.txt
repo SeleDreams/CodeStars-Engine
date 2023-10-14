@@ -1,6 +1,5 @@
 add_library(${PLATFORM_SPECIFICS}_graphics INTERFACE)
 if (USE_GL)
-add_compile_definitions(USE_GL)
 add_subdirectory(GL)
 endif()
 target_link_libraries(${PLATFORM_SPECIFICS} INTERFACE ${PLATFORM_SPECIFICS}_graphics)
