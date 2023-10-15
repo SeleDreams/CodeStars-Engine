@@ -53,6 +53,8 @@ _deps
 *.idb
 *.pdb
 
+*.spv
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd
@@ -62,3 +64,4 @@ Module.symvers
 Mkfile.old
 dkms.conf
 build/
+*.

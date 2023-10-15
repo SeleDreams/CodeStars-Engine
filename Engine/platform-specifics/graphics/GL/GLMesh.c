@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "core/maths/mat.h"
+#include "core/memory/pool_allocator.h"
 
 GLint triangle_vertices[] =
 {
@@ -14,12 +15,12 @@ GLint triangle_vertices[] =
     1000, -1000,0,
     0, 1000, 0
 };
+csFMat4 fMat;
 
 void csMeshDraw(csMesh *mesh, csShader *shader)
 {
-    csFMat4 mat;
-    csMatToFloat(&mat,&mesh->modelTransform);
-    glUniformMatrix4fv(((glShader*)shader)->uModelTransform,1,GL_FALSE,(GLfloat*)mat);
+    csMatToFloat(&fMat,&mesh->modelTransform);
+    glUniformMatrix4fv(((glShader*)shader)->uModelTransform,1,GL_FALSE,(GLfloat*)fMat);
     glUseProgram(((glShader*)shader)->program);
     glBindBuffer(GL_ARRAY_BUFFER,mesh->VBO);
         glEnableVertexAttribArray(0);
@@ -30,10 +31,11 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
 
 void csMeshCreatePrimitiveTriangle(csMesh **output)
 {
-    *output = malloc(sizeof(csMesh));
+    *output = csMalloc(sizeof(csMesh));
     csMesh *mesh = *output;
     csMatInit(&mesh->modelTransform);
     csMatFillDiagonal(&mesh->modelTransform,1);
+    
     mesh->vertices = triangle_vertices;
     mesh->vertices_count = sizeof(triangle_vertices) / sizeof(GLint);
     GLuint VAO, VBO;
@@ -50,5 +52,5 @@ void csMeshCreatePrimitiveTriangle(csMesh **output)
 void csMeshFree(csMesh *mesh)
 {
     glDeleteBuffers(1, &mesh->VBO);
-    free(mesh);
+    csFree(mesh,sizeof(csMesh));
 }

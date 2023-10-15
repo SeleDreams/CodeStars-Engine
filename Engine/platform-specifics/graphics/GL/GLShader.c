@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "core/memory/pool_allocator.h"
+#include "GLShaderConverter.h"
+#include <assert.h>
+
 int csGLShaderProgramCreate(csShader *shader)
 {
     GLuint program = glCreateProgram();
@@ -16,11 +20,15 @@ int csGLShaderProgramCreate(csShader *shader)
     return 0;
 }
 
-int csGLShaderLoad(csShader *shader, const char *shader_data, GLenum shader_type)
+int csGLShaderLoad(csShader *shader, const uint32_t *shader_data, size_t shader_size, GLenum shader_type)
 {
     GLuint shader_index = glCreateShader(shader_type);
-    GLint length = strlen(shader_data);
-    glShaderSource(shader_index, 1, &shader_data, &length);
+    const char *final_shader = ConvertShader(shader_data,shader_size);
+    printf("%s\n",final_shader);
+    GLint length = strlen(final_shader);
+    glShaderSource(shader_index, 1, &final_shader, &length);
+    csFree((void*)final_shader,length + 1);
+
     glCompileShader(shader_index);
     GLint result = 0;
     GLchar error[1024] = {0};
@@ -35,43 +43,55 @@ int csGLShaderLoad(csShader *shader, const char *shader_data, GLenum shader_type
     return 0;
 }
 
-int csShaderLoad(csShader **shader, const char *vertex_shader_data, const char *fragment_shader_data)
+csShader *csShaderCreate()
 {
-    *shader = malloc(sizeof(glShader));
-    csShader *new_shader = *shader;
-    if (csGLShaderProgramCreate(new_shader))
+    return csMalloc(sizeof(glShader));
+}
+
+void csShaderDestroy(csShader *shader)
+{
+    csFree(shader,sizeof(glShader));
+}
+void error_callback(void *userdata, const char *error)
+{
+    fprintf(stderr,"An error occurred while using spirv-cross : %s\n",error);
+}
+
+int csShaderLoad(csShader *shader, const uint32_t *vertex_shader_data,size_t vertex_shader_size, const uint32_t *fragment_shader_data,size_t fragment_shader_size)
+{
+    if (csGLShaderProgramCreate(shader))
     {
         return 1;
     }
-    if (csGLShaderLoad(new_shader, vertex_shader_data, GL_VERTEX_SHADER))
+    if (csGLShaderLoad(shader, vertex_shader_data,vertex_shader_size, GL_VERTEX_SHADER))
     {
         return 2;
     }
-    if (csGLShaderLoad(new_shader, fragment_shader_data, GL_FRAGMENT_SHADER))
+    if (csGLShaderLoad(shader, fragment_shader_data, fragment_shader_size, GL_FRAGMENT_SHADER))
     {
         return 3;
     }
     
     GLint result = 0;
     GLchar error[1024] = {0};
-    glLinkProgram(((glShader*)new_shader)->program);
-    glGetProgramiv(((glShader*)new_shader)->program, GL_LINK_STATUS, &result);
+    glLinkProgram(((glShader*)shader)->program);
+    glGetProgramiv(((glShader*)shader)->program, GL_LINK_STATUS, &result);
     if (!result)
     {
         GLint size;
-        glGetProgramInfoLog(((glShader*)new_shader)->program, sizeof(error), &size, error);
+        glGetProgramInfoLog(((glShader*)shader)->program, sizeof(error), &size, error);
         printf("Error when linking shader program : %s\n", error);
         return 1;
     }
-    glValidateProgram(((glShader*)new_shader)->program);
-    glGetProgramiv(((glShader*)new_shader)->program, GL_VALIDATE_STATUS, &result);
+    glValidateProgram(((glShader*)shader)->program);
+    glGetProgramiv(((glShader*)shader)->program, GL_VALIDATE_STATUS, &result);
     if (!result)
     {
-        glGetProgramInfoLog(((glShader*)new_shader)->program, sizeof(error), NULL, error);
+        glGetProgramInfoLog(((glShader*)shader)->program, sizeof(error), NULL, error);
         printf("Error when validating shader program : %s\n", error);
         return 2;
     }
-    glBindAttribLocation(((glShader*)new_shader)->program,0,"pos");
-    ((glShader*)new_shader)->uModelTransform = glGetUniformLocation(((glShader*)new_shader)->program,"uModelTransform");
+    glBindAttribLocation(((glShader*)shader)->program,0,"pos");
+    ((glShader*)shader)->uModelTransform = glGetUniformLocation(((glShader*)shader)->program,"uModel.uModelTransform");
     return 0;
 }

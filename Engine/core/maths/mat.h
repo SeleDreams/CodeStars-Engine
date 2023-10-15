@@ -13,13 +13,5 @@ static inline void csMatAdd(csMat4 *dest, const csMat4 *a, const csMat4 *b) {mf1
 static inline void csMatSub(csMat4 *dest,const csMat4 *a, const csMat4 *b) {mf16_sub(dest,a,b);}
 static inline void csMatTranspose(csMat4 *dest,const csMat4 *mat) {mf16_transpose(dest,mat);}
 static inline void csMatMulS(csMat4 *dest,const csMat4 *mat, const fixed_int scalar) {mf16_mul_s(dest,mat,scalar);}
-static inline void csMatToFloat(csFMat4 *dest, const csMat4 *mat) {
-    for (int i = 0; i < 4;i++)
-    {
-        for (int j = 0; j < 4;j++)
-        {
-            (*dest)[i][j] = (float)mat->data[i][j] * (1/65536.0);
-        }
-    }
-}
+extern void csMatToFloat(csFMat4 *dest, const csMat4 *mat);
 #endif

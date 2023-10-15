@@ -1,5 +1,5 @@
-#ifndef CS_GLFWFUNCTIONS_H
-#define CS_GLFWFUNCTIONS_H 
+#ifndef CS_SDLFUNCTIONS_H
+#define CS_SDLFUNCTIONS_H 
 #include "GLGraphics.h"
 int csSDLGraphicsContextCreate(csGraphicsContext *context, int width, int height, const char *name);
 void csSDLGraphicsContextDestroy(csGraphicsContext *context);

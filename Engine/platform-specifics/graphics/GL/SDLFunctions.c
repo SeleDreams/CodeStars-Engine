@@ -5,6 +5,7 @@
 #include <math.h>
 #include <time.h>
 #include <assert.h>
+#include "core/memory/pool_allocator.h"
 
 static const csGraphicsContextImpl csGLGraphicsContextImpl = {
     .Create = csSDLGraphicsContextCreate,
@@ -25,16 +26,16 @@ int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, uns
         return 1;
     }
 
-    csGraphicsWindow *window = malloc(sizeof(csGraphicsWindow));
+    csGraphicsWindow *window = csMalloc(sizeof(csGraphicsWindow));
     
     window->window = SDL_CreateWindow(name,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     window->height = height;
     window->width = width;
     window->name = name;
     window->glContext = SDL_GL_CreateContext(window->window);
+
     assert(window->glContext != NULL);
     window->renderer = SDL_CreateRenderer(window->window,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-
     SDL_GL_GetDrawableSize(window->window,&window->buffer_width,&window->buffer_height);
     if (!window || !window->window)
     {
@@ -73,7 +74,7 @@ int csSDLGraphicsRemoveWindow(csGraphicsContext context, int window_id)
     SDL_DestroyWindow(window->window);
     SDL_GL_DeleteContext(window->glContext);
     SDL_DestroyRenderer(window->renderer);
-    free(window);
+    csFree(window,sizeof(csGraphicsWindow));
     ((csGLGraphicsContext*)context)->window_count -= 1;
     ((csGLGraphicsContext*)context)->windows[window_id] = ((csGLGraphicsContext*)context)->windows[((csGLGraphicsContext*)context)->window_count];
     ((csGLGraphicsContext*)context)->windows = realloc(((csGLGraphicsContext*)context)->windows, sizeof(csGraphicsWindow *) * ((csGLGraphicsContext*)context)->window_count);
@@ -90,13 +91,14 @@ int csSDLGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned 
     }
     SDL_SetMainReady();
     SDL_Init(SDL_INIT_VIDEO);
+    #ifndef USE_GLEW
     SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+    #endif
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     ((csGLGraphicsContext*)context)->window_count = 0;
     ((csGLGraphicsContext*)context)->main_window = 0;
@@ -112,8 +114,21 @@ int csSDLGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned 
     }
     SDL_GL_MakeCurrent(((csGLGraphicsContext*)context)->windows[0]->window,((csGLGraphicsContext*)context)->windows[0]->glContext);
     assert(SDL_GL_GetCurrentContext() != NULL);
-    //printf("SDL2 version : %s\n",SDL_VERSION);
-    printf("gl version : %s\n",glGetString(GL_VERSION));
+    #ifdef USE_GLEW
+    GLenum err = glewInit();
+    if (GLEW_OK != err)
+    {
+        
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+    }
+    #endif
+    SDL_version version;
+    SDL_GetVersion(&version);
+    printf("SDL version : %d.%d.%d\n",version.major,version.minor,version.patch);
+    printf("GL version : %s\nGL renderer : %s\n",glGetString(GL_VERSION),glGetString(GL_RENDERER));
+    #ifdef USE_GLEW
+    printf("Using GLEW %s\n", glewGetString(GLEW_VERSION));
+    #endif
     return 0;
 }
 
@@ -129,10 +144,11 @@ void csSDLGraphicsTerminate(csGraphicsContext context)
                 csSDLGraphicsRemoveWindow(context, i);
             }
         }
-        free(context);
+        csFree(context,sizeof(csGLGraphicsContext));
         context = NULL;
         printf("freed context\n");
     }
+    
     SDL_Quit();
     printf("Terminated SDL\n");
 }
@@ -205,7 +221,7 @@ int csSDLGraphicsContextCreate(csGraphicsContext *context, int width, int height
         printf("The graphics context provided to csGraphicsContextCreate isn't null! something's wrong\n");
         return 1;
     }
-    *context = malloc(sizeof(csGLGraphicsContext));
+    *context = csMalloc(sizeof(csGLGraphicsContext));
     if (!*context)
     {
         printf("context is null after allocation, something's wrong!\n");
