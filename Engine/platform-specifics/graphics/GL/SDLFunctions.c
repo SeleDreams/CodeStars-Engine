@@ -6,7 +6,10 @@
 #include <time.h>
 #include <assert.h>
 #include "core/memory/pool_allocator.h"
-
+#include <SDL_syswm.h>
+#if defined(WIN32)
+#include <dwmapi.h>
+#endif
 static const csGraphicsContextImpl csGLGraphicsContextImpl = {
     .Create = csSDLGraphicsContextCreate,
     .Destroy = csSDLGraphicsContextDestroy,
@@ -32,6 +35,18 @@ int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, uns
     window->height = height;
     window->width = width;
     window->name = name;
+    #if defined(WIN32) && !defined(UNIX)
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window->window, &wmInfo);
+    HWND hwnd = wmInfo.info.win.window;
+    
+
+    COLORREF titlebar_color = 0x0015171E;
+    DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR,&titlebar_color, sizeof(titlebar_color));
+
+    DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR,&titlebar_color, sizeof(titlebar_color));
+    #endif
     window->glContext = SDL_GL_CreateContext(window->window);
 
     assert(window->glContext != NULL);
@@ -162,7 +177,7 @@ void csSDLGraphicsFrameStart(csGraphicsContext context)
     csGraphicsWindow *current_window = ((csGLGraphicsContext*)context)->windows[((csGLGraphicsContext*)context)->main_window];
     SDL_GL_MakeCurrent(current_window->window,current_window->glContext);
     glViewport(0,0,current_window->buffer_width,current_window->buffer_height);
-    glClearColor(1.0,1.0,1.0,1.0);
+    glClearColor(0.0,0.0,0.0,1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 

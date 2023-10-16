@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <CodeStarsEngine.h>
 #include <platform-specifics/graphics/GL/GLGraphics.h>
+#include <time.h>
 int LoadFile(const char *path, uint32_t **output,size_t *length)
 {
-    int itemsWide = 8;
 
     // Open the file.
     FILE *fp = fopen(path, "rb");
@@ -27,23 +27,26 @@ int LoadFile(const char *path, uint32_t **output,size_t *length)
 
     // Read the data in.
     fseek(fp, 0L, SEEK_SET);
-    *output = csMalloc(sizeof(uint32_t[byteSize / 4]));
+    *output = csMalloc(byteSize);
     if (fread(*output, byteSize, 1, fp) != 1) {
         printf("vksbc error: couldn't read file.\n");
         return 1;
     }
     *length = byteSize / 4;
+
     // Close the file
     fclose(fp);
+    return 0;
 }
 
 int main(void)
 {
+    csMemPoolAllocatorInit(&csMemPoolAllocatorGlobal,8);
     uint32_t *vertex_shader = NULL;
     size_t vertex_shader_size;
     uint32_t *fragment_shader = NULL;
     size_t fragment_shader_size;
-    csMemPoolAllocatorInit(&csMemPoolAllocatorGlobal,8);
+    
     LoadFile("./shaders/vertex.spv", &vertex_shader,&vertex_shader_size);
     LoadFile("./shaders/fragment.spv", &fragment_shader,&fragment_shader_size);
     csGLGraphicsInit();
@@ -59,8 +62,8 @@ int main(void)
     csGraphicsContextSetTargetFramerate(context, framerate);
     csShader *shader = csShaderCreate();
     int result = csShaderLoad(shader, vertex_shader,vertex_shader_size, fragment_shader,fragment_shader_size);
-    csFree(vertex_shader,strlen(vertex_shader) + 1);
-    csFree(fragment_shader,strlen(fragment_shader) + 1);
+    csFree(vertex_shader,sizeof(uint32_t) * vertex_shader_size);
+    csFree(fragment_shader,sizeof(uint32_t) * fragment_shader_size);
     if (result)
     {
         printf("An error occurred while loadings the shaders!\n");

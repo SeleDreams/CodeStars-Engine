@@ -1,9 +1,11 @@
-#include "GLShaderConverter.h"
 #include <spirv_cross/spirv_cross.hpp>
 #include <spirv_cross/spirv_glsl.hpp>
 #include <vector>
+extern "C"
+{
+#include "GLShaderConverter.h"
 #include "core/memory/pool_allocator.h"
-
+}
 const char *ConvertShader(const uint32_t *src,size_t filesize)
 {
     std::vector<uint32_t> test(src, src + filesize);

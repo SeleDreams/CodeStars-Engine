@@ -35,7 +35,7 @@ void csMemPoolAllocatorDealloc(csMemPoolAllocator *allocator, void *ptr, size_t 
 }
 
 csMemoryChunk *csMemPoolAllocatorAllocPool(csMemPoolAllocator *allocator, size_t size){
-    printf("Allocating block (%d chunks):\n\n");
+    //printf("Allocating block (%d chunks) resulting in %d bytes allocated:\n\n",allocator->chunksPerBlock,allocator->chunksPerBlock * size);
     size_t blockSize = allocator->chunksPerBlock * size;
     csMemoryChunk *blockBegin = reinterpret_cast(csMemoryChunk*,malloc(blockSize));
     csMemoryChunk *chunk = blockBegin;

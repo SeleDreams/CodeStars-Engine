@@ -5,7 +5,7 @@
 #include "GLGraphics.h"
 typedef struct csMesh
 {
-    GLint *vertices;
+    const GLfixed *vertices;
     GLuint vertices_count;
     GLuint VAO;
     GLuint VBO;

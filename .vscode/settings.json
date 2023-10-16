@@ -2,12 +2,12 @@
     "cmake.configureSettings": {
         "CMAKE_INSTALL_PREFIX":"${workspaceFolder}/build",
         "CMAKE_FIND_DEBUG_MODE": "OFF",
-        "CMAKE_VERBOSE_MAKEFILE" : "ON",
+        "CMAKE_VERBOSE_MAKEFILE" : "OFF",
         "USE_GLEW" : "OFF"
     },
     "cmake.generator": "MinGW Makefiles",
     "cmake.debugConfig": {
-        "cwd": "${workspaceFolder}/Engine"
+        "cwd": "${workspaceFolder}/build/bin"
     },
     "files.associations": {
         "fixmatrix.h": "c",
@@ -88,6 +88,13 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "codestarsengine.h": "c",
-        "includes.h": "c"
-    },
+        "includes.h": "c",
+        "pool_allocator.h": "c",
+        "stdlib.h": "c",
+        "fixvector2d.h": "c",
+        "fixvector3d.h": "c",
+        "maths.h": "c",
+        "sdl_syswm.h": "c",
+        "dwmapi.h": "c"
+    }
 }
