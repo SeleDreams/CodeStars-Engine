@@ -71,15 +71,15 @@ static inline void csMatPerspective(csMat4 *mat,csFixed fov,csFixed aspect,csFix
     csMatSet(mat,2,2,csFixedDiv(far,near - far));
     csMatSet(mat,2,3,csFixedFromInt(-1));
     csMatSet(mat,3,2,csFixedDiv(csFixedMul(csFixedMul(far,near),csFixedFromInt(-1)),far - near));
-    
-   /*int tangent = csFixedTan(csFixedDegToRad(csFixedDiv(fov,csFixedFromInt(2))));
+
+   /*int tangent = csFixedTan(csFixedDiv(fov,csFixedFromInt(2)));
     csMatInit(mat);
     csMatSet(mat,0,0,csFixedDiv(tangent,csFixedFromInt(2)));
     csMatSet(mat,1,1,csFixedDiv(csFixedDiv(aspect,csFixedFromInt(2)),tangent));
     csMatSet(mat,2,2,csFixedDiv(csFixedMul(far,csFixedFromInt(-1)) + near,far - near));
     csMatSet(mat,2,3,csFixedFromInt(-1));
-    csMatSet(mat,3,2,csFixedDiv(csFixedMul(csFixedMul(csFixedFromInt(-2),far),near),far - near));
-    */
+    csMatSet(mat,3,2,csFixedDiv(csFixedMul(csFixedMul(csFixedFromInt(-2),far),near),far - near));*/
+    
 
 }
 extern void csMatToFloat(csFMat4 *dest, const csMat4 *mat, int print);

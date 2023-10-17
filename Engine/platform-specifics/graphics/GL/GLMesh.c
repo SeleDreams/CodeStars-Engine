@@ -13,7 +13,9 @@ static const GLuint triangle_indices[] = {
     0, 3, 1,
     1, 3, 2,
     2, 3, 0,
-    0, 1, 2
+    0, 1, 2,
+    
+
 };
 
 static const GLfixed triangle_vertices[] =
@@ -74,8 +76,8 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
 
     glBindBuffer(GL_ARRAY_BUFFER,mesh->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,mesh->VAO);
+            glVertexAttribPointer(0,3,GL_FIXED,GL_FALSE,0,0);
             glEnableVertexAttribArray(0);
-                glVertexAttribPointer(0,3,GL_FIXED,GL_FALSE,0,0);
                 glDrawElements(GL_TRIANGLES,sizeof(triangle_indices) / sizeof(GLuint),GL_UNSIGNED_INT,0);
             glDisableVertexAttribArray(0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
@@ -95,7 +97,7 @@ void csMeshCreatePrimitiveTriangle(csMesh **output)
     GLint m_viewport[4];
 
     glGetIntegerv( GL_VIEWPORT, m_viewport );
-    csMatPerspective(&proj,csFixedDegToRad(csFixedFromFloat(45.0f)),csFixedFromFloat((float)m_viewport[2] / (float)m_viewport[3]),csFixedFromFloat(0.1f),csFixedFromInt(100));
+    csMatPerspective(&proj,csFixedDegToRad(csFixedFromFloat(45.0f)),csFixedDiv(m_viewport[2] << 16,m_viewport[3] << 16),csFixedFromFloat(0.1f),csFixedFromInt(100));
     csMatInit(&mesh->modelTransform);
     csMatFillDiagonal(&mesh->modelTransform,1 << 16);
 
@@ -108,7 +110,6 @@ void csMeshCreatePrimitiveTriangle(csMesh **output)
     csMatScale(&scale,&size);
 
     csMatInit(&rot);
-    csMatFillDiagonal(&rot,1 << 16);
     //csQuatFromAxisAngle(&rotation,&up,csFixedDegToRad(0 << 16));
     //csMatSetRotation(&rot,&rotation);
 
@@ -118,12 +119,12 @@ void csMeshCreatePrimitiveTriangle(csMesh **output)
     glGenBuffers(1,&IBO);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(triangle_indices),triangle_indices,GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0,3,GL_FIXED,GL_FALSE,0,0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(triangle_indices),triangle_indices,GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0,3,GL_FIXED,GL_FALSE,0,0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     int glError = glGetError();
     if (glError)
