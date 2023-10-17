@@ -9,6 +9,7 @@
     "cmake.debugConfig": {
         "cwd": "${workspaceFolder}/build/bin"
     },
+    "editor.wordWrap": "on",
     "files.associations": {
         "fixmatrix.h": "c",
         "fix16.h": "c",
@@ -95,6 +96,7 @@
         "fixvector3d.h": "c",
         "maths.h": "c",
         "sdl_syswm.h": "c",
-        "dwmapi.h": "c"
+        "dwmapi.h": "c",
+        "fixquat.h": "c"
     }
 }

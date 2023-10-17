@@ -34,6 +34,4 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders
     COMMAND ${GLSLC_COMPILER} ${PROJECT_SOURCE_DIR}/shaders/vertex.vert -o ${CMAKE_BINARY_DIR}/bin/shaders/vertex.spv
     COMMAND ${GLSLC_COMPILER} ${PROJECT_SOURCE_DIR}/shaders/fragment.frag -o ${CMAKE_BINARY_DIR}/bin/shaders/fragment.spv
-
-    BYPRODUCTS ${CMAKE_BINARY_DIR}/bin/shaders/vertex.spv ${CMAKE_BINARY_DIR}/bin/shaders/vertex.spv 
 )

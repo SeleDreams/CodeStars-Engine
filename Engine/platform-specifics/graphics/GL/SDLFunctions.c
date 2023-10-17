@@ -177,8 +177,9 @@ void csSDLGraphicsFrameStart(csGraphicsContext context)
     csGraphicsWindow *current_window = ((csGLGraphicsContext*)context)->windows[((csGLGraphicsContext*)context)->main_window];
     SDL_GL_MakeCurrent(current_window->window,current_window->glContext);
     glViewport(0,0,current_window->buffer_width,current_window->buffer_height);
+    glEnable(GL_DEPTH_TEST);
     glClearColor(0.0,0.0,0.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void csSDLGraphicsFrameEnd(csGraphicsContext context)
@@ -218,6 +219,7 @@ void csSDLGraphicsContextDestroy(csGraphicsContext *context)
     }
     *context = NULL;
 }
+
 void csGLGraphicsInit(void)
 {
     csGraphicsInit(&csGLGraphicsContextImpl);

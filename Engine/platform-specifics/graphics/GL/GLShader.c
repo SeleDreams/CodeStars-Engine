@@ -24,7 +24,7 @@ int csGLShaderLoad(csShader *shader, const uint32_t *shader_data, size_t shader_
 {
     GLuint shader_index = glCreateShader(shader_type);
     const char *final_shader = ConvertShader(shader_data,shader_size);
-    printf("%s\n",final_shader);
+    //printf("%s\n",final_shader);
     GLint length = strlen(final_shader);
     glShaderSource(shader_index, 1, &final_shader, &length);
     csFree((void*)final_shader,length + 1);
@@ -92,6 +92,9 @@ int csShaderLoad(csShader *shader, const uint32_t *vertex_shader_data,size_t ver
         return 2;
     }
     glBindAttribLocation(((glShader*)shader)->program,0,"pos");
-    ((glShader*)shader)->uModelTransform = glGetUniformLocation(((glShader*)shader)->program,"uModel.uModelTransform");
+    ((glShader*)shader)->uModelTransform = glGetUniformLocation(((glShader*)shader)->program,"uModel.uModel");
+    printf("OpenGL Error : 0x%x\n",glGetError());
+    ((glShader*)shader)->uProjection = glGetUniformLocation(((glShader*)shader)->program,"uModel.uProjection");
+    printf("OpenGL Error : 0x%x\n",glGetError());
     return 0;
 }
