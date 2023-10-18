@@ -33,7 +33,7 @@ static csFMat4 fProj;
 static csVec3 pos = {
 .x = 0 << 16,
 .y = 0 << 16,
-.z = -2 << 16
+.z = -3 << 16
 };
 static csVec3 size = {
 .x = 1 << 16,
@@ -41,7 +41,7 @@ static csVec3 size = {
 .z = 1 << 16
 };
 static csVec3 up = {
-.x = 0 << 16,
+.x = 1 << 16,
 .y = 1 << 16,
 .z = 0 << 16
 };
@@ -57,7 +57,7 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
     angle += 1 << 16;
     if (csFixedToInt(angle) >= 359)
     {
-        angle = 0 << 16;
+        angle = 1 << 16;
     }
     
     glUseProgram(((glShader*)shader)->program);
@@ -69,7 +69,7 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
     csMatMul(&mesh->modelTransform,&mesh->modelTransform,&trans);
 
     //csMatSet(&mesh->modelTransform,3,3,1 << 16);
-    csMatToFloat(&fMat,&mesh->modelTransform,1);
+    csMatToFloat(&fMat,&mesh->modelTransform,0);
     csMatToFloat(&fProj,&proj,0);
     glUniformMatrix4fv(((glShader*)shader)->uModelTransform,1,GL_FALSE,(GLfloat*)fMat);
     glUniformMatrix4fv(((glShader*)shader)->uProjection,1,GL_FALSE,(GLfloat*)fProj);
@@ -93,6 +93,8 @@ void csMeshCreatePrimitiveTriangle(csMesh **output)
 {
     *output = csMalloc(sizeof(csMesh));
     csMesh *mesh = *output;
+    
+    
     
     GLint m_viewport[4];
 
@@ -124,8 +126,8 @@ void csMeshCreatePrimitiveTriangle(csMesh **output)
             glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0,3,GL_FIXED,GL_FALSE,0,0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
     int glError = glGetError();
     if (glError)
     {

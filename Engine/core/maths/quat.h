@@ -23,9 +23,9 @@ static inline void csQuatToMatrix(csMat4 *dest, const csQuat *q) {
     norm = csQuatLength(q);
     s = norm > 0 << 16 ? csFixedDiv(2 << 16,norm) : 0 << 16;
 
-    x = q->d;
-    y = q->c;
-    z = q->b;
+    x = -q->b;
+    y = -q->c;
+    z = -q->d;
     w = q->a;
 
     xx = csFixedMul(csFixedMul(s,x),x);

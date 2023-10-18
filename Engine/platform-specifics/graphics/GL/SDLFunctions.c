@@ -48,10 +48,17 @@ int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, uns
     DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR,&titlebar_color, sizeof(titlebar_color));
     #endif
     window->glContext = SDL_GL_CreateContext(window->window);
-
+    SDL_GL_GetDrawableSize(window->window,&window->buffer_width,&window->buffer_height);
+    glViewport(0,0,window->buffer_width,window->buffer_height);
+    glEnable(GL_DEPTH_TEST);
+    GLenum glError = glGetError();
+    if (glError)
+    {
+         printf("OpenGL Error during context creation : 0x%x\n",glError);
+         return 1;
+    }
     assert(window->glContext != NULL);
     window->renderer = SDL_CreateRenderer(window->window,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-    SDL_GL_GetDrawableSize(window->window,&window->buffer_width,&window->buffer_height);
     if (!window || !window->window)
     {
         printf("An error occurred while creating the SDL window! : %s\n",SDL_GetError());
@@ -176,9 +183,7 @@ void csSDLGraphicsFrameStart(csGraphicsContext context)
     }
     csGraphicsWindow *current_window = ((csGLGraphicsContext*)context)->windows[((csGLGraphicsContext*)context)->main_window];
     SDL_GL_MakeCurrent(current_window->window,current_window->glContext);
-    glViewport(0,0,current_window->buffer_width,current_window->buffer_height);
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0,0.0,0.0,1.0);
+    glClearColor(0.2,0.2,0.2,1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

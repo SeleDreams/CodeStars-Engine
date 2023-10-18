@@ -93,8 +93,12 @@ int csShaderLoad(csShader *shader, const uint32_t *vertex_shader_data,size_t ver
     }
     glBindAttribLocation(((glShader*)shader)->program,0,"pos");
     ((glShader*)shader)->uModelTransform = glGetUniformLocation(((glShader*)shader)->program,"uModel.uModel");
-    printf("OpenGL Error : 0x%x\n",glGetError());
     ((glShader*)shader)->uProjection = glGetUniformLocation(((glShader*)shader)->program,"uModel.uProjection");
-    printf("OpenGL Error : 0x%x\n",glGetError());
+    GLenum gl_error = glGetError();
+    if (gl_error)
+    {
+        printf("OpenGL Error : 0x%x\n",glGetError());
+        return 3;
+    }
     return 0;
 }
