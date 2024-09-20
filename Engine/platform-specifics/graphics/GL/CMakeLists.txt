@@ -1,5 +1,3 @@
-
-
 add_compile_definitions(USE_SDL)
 find_package(SDL2 REQUIRED)
 if (USE_GLEW)

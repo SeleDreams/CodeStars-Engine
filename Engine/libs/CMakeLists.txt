@@ -1,3 +1,5 @@
 add_library(${PROJECT_NAME}_libs INTERFACE)
 add_subdirectory(libfixmatrix)
 target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_libs)
+get_target_property(INCLUDE_DIRS libfixmatrix INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(${PROJECT_NAME}_libs INTERFACE ${INCLUDE_DIRS})

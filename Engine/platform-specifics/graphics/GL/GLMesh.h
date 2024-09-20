@@ -3,12 +3,12 @@
 #include <core/graphics/Mesh.h>
 #include <core/utils/includes.h>
 #include "GLGraphics.h"
-typedef struct csMesh
+typedef struct glMesh
 {
     const GLfixed *vertices;
     GLuint vertices_count;
     GLuint VAO;
     GLuint VBO;
     csMat4 modelTransform;
-} csMesh;
+} glMesh;
 #endif

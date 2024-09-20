@@ -1,12 +1,12 @@
 #ifndef CODESTARS_ENGINE_CORE_MATHS_H
 #define CODESTARS_ENGINE_CORE_MATHS_H
 #include "stdlib.h"
-#include "libs/libfixmatrix/libfixmath/libfixmath/fix16.h"
+#include <libfixmath/fix16.h>
 #define FIXMATRIX_MAX_SIZE 8
-#include "libs/libfixmatrix/fixquat.h"
-#include "libs/libfixmatrix/fixmatrix.h"
-#include "libs/libfixmatrix/fixvector3d.h"
-#include "libs/libfixmatrix/fixvector2d.h"
+#include <fixquat.h>
+#include <fixmatrix.h>
+#include "fixvector3d.h"
+#include "fixvector2d.h"
 typedef fix16_t csFixed;
 typedef qf16 csQuat;
 typedef mf16 csMat4;

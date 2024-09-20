@@ -23,7 +23,9 @@ void *csMemPoolAllocatorAlloc(csMemPoolAllocator *allocator, size_t size) {
     {
         allocator->memoryChunk = csMemPoolAllocatorAllocPool(allocator,size);
     }
-
+    if (allocator->memoryChunk == NULL) {
+        printf("An error occurred when allocating data !\n");
+    }
     csMemoryChunk *freeChunk = allocator->memoryChunk;
     allocator->memoryChunk = allocator->memoryChunk->next;
     return freeChunk;
@@ -38,6 +40,10 @@ csMemoryChunk *csMemPoolAllocatorAllocPool(csMemPoolAllocator *allocator, size_t
     //printf("Allocating block (%d chunks) resulting in %d bytes allocated:\n\n",allocator->chunksPerBlock,allocator->chunksPerBlock * size);
     size_t blockSize = allocator->chunksPerBlock * size;
     csMemoryChunk *blockBegin = reinterpret_cast(csMemoryChunk*,malloc(blockSize));
+    if (blockBegin == NULL) {
+        // Handle memory allocation failure
+        return NULL;
+    }
     csMemoryChunk *chunk = blockBegin;
     for (int i = 0; i < allocator->chunksPerBlock - 1;++i)
     {

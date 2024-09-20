@@ -3,12 +3,17 @@
 #include <CodeStarsEngine.h>
 #include <platform-specifics/graphics/GL/GLGraphics.h>
 #include <time.h>
+#include <unistd.h>
 int LoadFile(const char *path, uint32_t **output,size_t *length)
 {
 
     // Open the file.
+    if (access(path, F_OK) != 0) {
+        printf("Error : the file %s does not exist.\n",path);
+        return 1;
+    }
     FILE *fp = fopen(path, "rb");
-    if (!fp) {
+    if (fp == NULL) {
         printf("vksbc error: could not open shader file: %s\n", path);
 		return 1;
     }
@@ -43,12 +48,13 @@ int main(void)
 {
     csMemPoolAllocatorInit(&csMemPoolAllocatorGlobal,8);
     uint32_t *vertex_shader = NULL;
-    size_t vertex_shader_size;
+    size_t vertex_shader_size = 0;
     uint32_t *fragment_shader = NULL;
-    size_t fragment_shader_size;
-    
-    LoadFile("./shaders/vertex.spv", &vertex_shader,&vertex_shader_size);
-    LoadFile("./shaders/fragment.spv", &fragment_shader,&fragment_shader_size);
+    size_t fragment_shader_size = 0;
+    if (LoadFile("./shaders/vertex.spv", &vertex_shader,&vertex_shader_size) || LoadFile("./shaders/fragment.spv", &fragment_shader,&fragment_shader_size)) {
+        return 1;
+    }
+    csShader *shader = csShaderCreate();
     csGLGraphicsInit();
     csGraphicsContext context = NULL;
     if (csGraphicsContextCreate(&context, 800, 600, "New Window"))
@@ -60,7 +66,6 @@ int main(void)
     csMeshCreatePrimitiveTriangle(&mesh);
     const int framerate = 60;
     csGraphicsContextSetTargetFramerate(context, framerate);
-    csShader *shader = csShaderCreate();
     int result = csShaderLoad(shader, vertex_shader,vertex_shader_size, fragment_shader,fragment_shader_size);
     csFree(vertex_shader,sizeof(uint32_t) * vertex_shader_size);
     csFree(fragment_shader,sizeof(uint32_t) * fragment_shader_size);
@@ -69,6 +74,7 @@ int main(void)
         printf("An error occurred while loadings the shaders!\n");
         return 1;
     }
+
     while (csGraphicsUpdate(context))
     {
         csGraphicsFrameStart(context);
