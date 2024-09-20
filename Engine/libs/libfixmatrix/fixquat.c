@@ -111,7 +111,7 @@ void qf16_avg(qf16 *dest, const qf16 *q1, const qf16 *q2, fix16_t weight)
 
 void qf16_from_axis_angle(qf16 *dest, const v3d *axis, fix16_t angle)
 {
-    angle /= 2;
+    angle = fix16_div(angle,2 << 16);
     fix16_t scale = fix16_sin(angle);
     
     dest->a = fix16_cos(angle);

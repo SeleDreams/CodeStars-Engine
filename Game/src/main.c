@@ -4,9 +4,9 @@
 #include <platform-specifics/graphics/GL/GLGraphics.h>
 #include <time.h>
 #include <unistd.h>
+
 int LoadFile(const char *path, uint32_t **output,size_t *length)
 {
-
     // Open the file.
     if (access(path, F_OK) != 0) {
         printf("Error : the file %s does not exist.\n",path);
@@ -14,7 +14,7 @@ int LoadFile(const char *path, uint32_t **output,size_t *length)
     }
     FILE *fp = fopen(path, "rb");
     if (fp == NULL) {
-        printf("vksbc error: could not open shader file: %s\n", path);
+        printf("Error: could not open shader file: %s\n", path);
 		return 1;
     }
 
@@ -22,11 +22,11 @@ int LoadFile(const char *path, uint32_t **output,size_t *length)
     fseek(fp, 0L, SEEK_END);
     unsigned int byteSize = (unsigned int)(ftell(fp));
     if (byteSize == 0) {
-        printf("vksbc error: File is empty.\n");
+        printf("Error : File is empty.\n");
         return 1;
     }
     if (byteSize % 4 != 0) {
-        printf("vksbc error: file content is not multiple of 4.\n");
+        printf("Error: file content is not multiple of 4.\n");
         return 1;
     }
 
@@ -34,7 +34,7 @@ int LoadFile(const char *path, uint32_t **output,size_t *length)
     fseek(fp, 0L, SEEK_SET);
     *output = csMalloc(byteSize);
     if (fread(*output, byteSize, 1, fp) != 1) {
-        printf("vksbc error: couldn't read file.\n");
+        printf("Error: couldn't read file.\n");
         return 1;
     }
     *length = byteSize / 4;
@@ -86,6 +86,8 @@ int main(void)
     csGraphicsContextDestroy(&context);
     csMeshFree(mesh);
     csShaderDestroy(shader);
-    printf("Hello World!\n");
+    if (csAllocatedData() > 0) {
+        printf("Exited with %llu bytes of leaked data !", csAllocatedData());
+    }
     return 0;
 }

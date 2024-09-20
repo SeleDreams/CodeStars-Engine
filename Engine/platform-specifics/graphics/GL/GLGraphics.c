@@ -3,7 +3,7 @@
 
 void csGLGraphicsContextSetTargetFramerate(csGraphicsContext context, int framerate)
 {
-    ((csGLGraphicsContext*)context)->framerate = framerate + 1;
+    ((csGLGraphicsContext*)context)->framerate = framerate;
 }
 
 int csGLGraphicsContextGetTargetFramerate(const csGraphicsContext context)

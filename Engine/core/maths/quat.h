@@ -1,6 +1,7 @@
 #ifndef CODESTARS_ENGINE_CORE_MATHS_QUAT_H
 #define CODESTARS_ENGINE_CORE_MATHS_QUAT_H
 #include "maths.h"
+#include "mat.h"
 static inline void csMatSet(csMat4 *a, int row, int column, int value);
 
 static inline void csQuatConjugate(csQuat *dest, const csQuat *q) { qf16_conj(dest,q);}

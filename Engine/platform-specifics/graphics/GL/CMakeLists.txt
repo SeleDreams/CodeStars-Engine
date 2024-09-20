@@ -1,7 +1,7 @@
 add_compile_definitions(USE_SDL)
 find_package(SDL2 REQUIRED)
 if (USE_GLEW)
-message("GLEW used")
+message(STATUS "GLEW used")
 add_compile_definitions(USE_GLEW)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)

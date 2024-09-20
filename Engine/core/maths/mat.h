@@ -5,8 +5,6 @@
 #include <math.h>
 #include "quat.h"
 
-typedef float csFMat4[4][4];
-
 static inline void csMatFill(csMat4 *dest, const csFixed value) { mf16_fill(dest,value);}
 static inline void csMatFillDiagonal(csMat4 *dest, const int value) {mf16_fill_diagonal(dest,value);}
 static inline void csMatInit(csMat4 *dest) {dest->rows = 4; dest->columns = 4; csMatFill(dest,0);}

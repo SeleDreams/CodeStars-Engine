@@ -12,10 +12,12 @@
 })
 
 csMemPoolAllocator csMemPoolAllocatorGlobal;
+size_t csMemPoolAllocatorAllocatedData;
 
 void csMemPoolAllocatorInit(csMemPoolAllocator *allocator, size_t chunksPerBlock) {
     allocator->chunksPerBlock = chunksPerBlock;
     allocator->memoryChunk = NULL;
+    csMemPoolAllocatorAllocatedData = 0;
 }
 
 void *csMemPoolAllocatorAlloc(csMemPoolAllocator *allocator, size_t size) {

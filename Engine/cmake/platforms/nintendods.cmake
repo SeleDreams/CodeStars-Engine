@@ -1,0 +1,6 @@
+if (CMAKE_SYSTEM_NAME STREQUAL "NintendoDS")
+    message(STATUS "Using platform NintendoDS")
+    unset(USE_GL)
+    unset(USE_SDL)
+    unset(USE_GLEW)
+endif()

@@ -20,10 +20,10 @@ static const GLuint triangle_indices[] = {
 
 static const GLfixed triangle_vertices[] =
 {
-    -1 << 16,-1 << 16,0 << 16,
-    0 << 16,-1 << 16,1 << 16,
-    1 << 16, -1 << 16,0 << 16,
-    0 << 16, 1 << 16, 0 << 16
+    -1 * 65536,-1 * 65536,0 * 65536,
+    0 * 65536,-1 * 65536,1 * 65536,
+    1 * 65536, -1 * 65536,0 * 65536,
+    0 * 65536, 1 * 65536, 0 * 65536
 };
 
 static csMat4 proj;
@@ -31,19 +31,19 @@ static csFMat4 fMat;
 static csFMat4 fProj;
 
 static csVec3 pos = {
-.x = 0 << 16,
-.y = 0 << 16,
-.z = -3 << 16
+.x = 0 * 65536,
+.y = 0 * 65536,
+.z = -3 * 65536
 };
 static csVec3 size = {
-.x = 1 << 16,
-.y = 1 << 16,
-.z = 1 << 16
+.x = 1 * 65536,
+.y = 1 * 65536,
+.z = 1 * 65536
 };
 static csVec3 up = {
-.x = 1 << 16,
-.y = 1 << 16,
-.z = 0 << 16
+.x = 1 * 65536,
+.y = 1 * 65536,
+.z = 0 * 65536
 };
 
 static csMat4 trans;
@@ -51,25 +51,27 @@ static csMat4 scale;
 static csMat4 rot;
 
 static csQuat rotation;
+
+static glMesh *realMesh = NULL;
 void csMeshDraw(csMesh *mesh, csShader *shader)
 {
-    glMesh *realMesh = (glMesh*)mesh;
-    static csFixed angle = 0 << 16;
-    angle += 1 << 16;
+    realMesh = (glMesh*)mesh;
+    static csFixed angle = 0 * 65536;
+    angle += 1 * 65536;
     if (csFixedToInt(angle) >= 359)
     {
-        angle = 1 << 16;
+        angle = 1 * 65536;
     }
     
     glUseProgram(((glShader*)shader)->program);
     csQuatFromAxisAngle(&rotation,&up,csFixedDegToRad(angle));
     csMatSetRotation(&rot,&rotation);
-    csMatFillDiagonal(&realMesh->modelTransform,1 << 16);
+    csMatFillDiagonal(&realMesh->modelTransform,1 * 65536);
     csMatMul(&realMesh->modelTransform, &realMesh->modelTransform, &scale);
     csMatMul(&realMesh->modelTransform,&realMesh->modelTransform, &rot);
     csMatMul(&realMesh->modelTransform,&realMesh->modelTransform,&trans);
 
-    //csMatSet(&mesh->modelTransform,3,3,1 << 16);
+    //csMatSet(&mesh->modelTransform,3,3,1 * 65536);
     csMatToFloat(&fMat,&realMesh->modelTransform,0);
     csMatToFloat(&fProj,&proj,0);
     glUniformMatrix4fv(((glShader*)shader)->uModelTransform,1,GL_FALSE,(GLfloat*)fMat);
@@ -92,31 +94,31 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
 
 void csMeshCreatePrimitiveTriangle(csMesh **output)
 {
-    glMesh *mesh = csMalloc(sizeof(glMesh));
-    *output = (csMesh*)mesh;
-    
-    
+    realMesh = csMalloc(sizeof(glMesh));
+    *output = (csMesh*)realMesh;
+
+
     GLint m_viewport[4];
 
     glGetIntegerv( GL_VIEWPORT, m_viewport );
-    csMatPerspective(&proj,csFixedDegToRad(csFixedFromFloat(45.0f)),csFixedDiv(m_viewport[2] << 16,m_viewport[3] << 16),csFixedFromFloat(0.1f),csFixedFromInt(100));
-    csMatInit(&mesh->modelTransform);
-    csMatFillDiagonal(&mesh->modelTransform,1 << 16);
+    csMatPerspective(&proj,csFixedDegToRad(csFixedFromFloat(45.0f)),csFixedDiv(m_viewport[2] * 65536,m_viewport[3] * 65536),csFixedFromFloat(0.1f),csFixedFromInt(100));
+    csMatInit(&realMesh->modelTransform);
+    csMatFillDiagonal(&realMesh->modelTransform,1 * 65536);
 
     csMatInit(&trans);
-    csMatFillDiagonal(&trans,1 << 16);
+    csMatFillDiagonal(&trans,1 * 65536);
     csMatSetPosition(&trans,&pos);
 
     csMatInit(&scale);
-    csMatFillDiagonal(&scale,1 << 16);
+    csMatFillDiagonal(&scale,1 * 65536);
     csMatScale(&scale,&size);
 
     csMatInit(&rot);
-    //csQuatFromAxisAngle(&rotation,&up,csFixedDegToRad(0 << 16));
+    //csQuatFromAxisAngle(&rotation,&up,csFixedDegToRad(0 * 65536));
     //csMatSetRotation(&rot,&rotation);
 
-    mesh->vertices = triangle_vertices;
-    mesh->vertices_count = sizeof(triangle_vertices) / sizeof(GLfixed);
+    realMesh->vertices = triangle_vertices;
+    realMesh->vertices_count = sizeof(triangle_vertices) / sizeof(GLfixed);
     GLuint IBO, VBO;
     glGenBuffers(1,&IBO);
     glGenBuffers(1, &VBO);
@@ -133,13 +135,12 @@ void csMeshCreatePrimitiveTriangle(csMesh **output)
     {
          printf("OpenGL Error : 0x%x\n",glError);
     }
-    mesh->VAO = IBO;
-    mesh->VBO = VBO;
+    realMesh->VAO = IBO;
+    realMesh->VBO = VBO;
 }
 
 void csMeshFree(csMesh *mesh)
 {
-    glMesh *realMesh = (glMesh*)mesh;
     glDeleteBuffers(1, &realMesh->VBO);
     csFree(mesh,sizeof(glMesh));
 }

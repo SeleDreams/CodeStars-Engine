@@ -9,6 +9,7 @@
 #include "fixvector2d.h"
 typedef fix16_t csFixed;
 typedef qf16 csQuat;
+typedef float csFMat4[4][4];
 typedef mf16 csMat4;
 
 static inline csFixed csFixedDegToRad(csFixed a) { return fix16_deg_to_rad(a); }

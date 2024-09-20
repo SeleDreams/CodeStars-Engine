@@ -23,7 +23,7 @@ static const csGraphicsContextImpl csGLGraphicsContextImpl = {
 
 int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, unsigned int height, const char *name)
 {
-    if (!context)
+    if (context == NULL)
     {
         printf("The context provided is null, cannot create new window\n");
         return 1;
