@@ -1,7 +1,7 @@
 #include "Graphics.h"
 #include <time.h>
 #include <assert.h>
-
+#include "../maths/includes.h"
 csGraphicsContextImpl backend;
 
 void csGraphicsInit(const csGraphicsContextImpl *impl) {
@@ -55,23 +55,30 @@ int csGraphicsUpdate(csGraphicsContext context)
     return backend.Update(context);
 }
 
-float csGraphicsWaitForNextFrame(int framerate)
+csFixed csGraphicsWaitForNextFrame(int framerate)
 {
-    static float last_frame_seconds = 0;
-    static float current_frame_seconds = 0;
-    static float delta;
+    static csFixed last_frame_seconds = 0;
+    static csFixed current_frame_seconds = 0;
+    static csFixed delta;
+    static const csFixed CLOCKS_PER_SEC_FIXED = CLOCKS_PER_SEC * fix16_one;
+    static int clk;
 
-    delta = 0.0f;
+    delta = csFixedFromFloat(0.001);
 
     if (last_frame_seconds == 0)
     {
-        last_frame_seconds = ((float)clock()) / CLOCKS_PER_SEC;
+        clk = clock();
+        last_frame_seconds = csFixedDiv(csFixedFromInt(clk)  ,CLOCKS_PER_SEC_FIXED);
     }
 
-    while (1.0 / delta >= framerate)
+    while (csFixedToInt(csFixedDiv(1 << 16, delta)) > framerate)
     {
-        double current_frame_seconds = ((float)clock()) / CLOCKS_PER_SEC;
+        clk = clock();
+        current_frame_seconds = csFixedDiv(csFixedFromInt(clk) ,CLOCKS_PER_SEC_FIXED);
         delta = current_frame_seconds - last_frame_seconds;
+        if (delta == 0) {
+            delta = csFixedFromFloat(0.0001);
+        }
     }
     last_frame_seconds = current_frame_seconds;
     return delta;

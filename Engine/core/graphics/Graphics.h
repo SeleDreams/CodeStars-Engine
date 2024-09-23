@@ -1,6 +1,6 @@
 #ifndef CS_GRAPHICS_H
 #define CS_GRAPHICS_H
-
+#include "../maths/includes.h"
 typedef void* csGraphicsContext;
 
 typedef struct csGraphicsContextImpl {
@@ -18,7 +18,7 @@ typedef struct Mesh Mesh;
 
 
 void csGraphicsInit(const csGraphicsContextImpl *impl);
-float csGraphicsWaitForNextFrame(int framerate);
+csFixed csGraphicsWaitForNextFrame(int framerate);
 
 int csGraphicsContextCreate(csGraphicsContext *context, int width, int height, const char *name);
 void csGraphicsContextDestroy(csGraphicsContext *context);
@@ -30,5 +30,4 @@ float csGraphicsContextGetDelta(const csGraphicsContext context);
 void csGraphicsFrameStart(csGraphicsContext context);
 void csGraphicsFrameEnd(csGraphicsContext context);
 int csGraphicsUpdate(csGraphicsContext context);
-float csGraphicsWaitForNextFrame(int framerate);
 #endif

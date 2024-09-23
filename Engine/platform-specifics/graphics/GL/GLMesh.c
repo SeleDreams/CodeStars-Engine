@@ -40,7 +40,7 @@ static csVec3 size = {
 .z = 1 * 65536
 };
 static csVec3 up = {
-    .x = 1 * 65536, // 1/sqrt(2)
+    .x = 0 * 65536, // 1/sqrt(2)
         .y = 1 * 65536, // 1/sqrt(2)
         .z = 0
 };
@@ -50,14 +50,12 @@ static glMesh *realMesh;
 void csMeshDraw(csMesh *mesh, csShader *shader)
 {
     realMesh = (glMesh*)mesh;
-    static csFixed angle = 0 * 65536;
-    angle += 1 * 65536;
-    pos.z += 0.05 * 65536;
-    if (csFixedToInt(angle) >= 359)
-    {
-        angle = 1 * 65536;
-    }
+    static csFixed angle = 180 * 65536;
 
+    angle += 0.5 * (1  << 16);
+    if (csFixedToInt(angle) > 359) {
+        angle = 1 << 16;
+    }
     csQuatFromAxisAngle(&rotation, &up, csFixedDegToRad(angle));
     csQuatNormalize(&rotation,&rotation);
     csMatSetRotation(&rotMat, &rotation);
@@ -85,13 +83,13 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
     glVertexPointer(3, GL_FIXED, 0, triangle_vertices);
     glDrawElements(GL_TRIANGLES, sizeof(triangle_indices) / sizeof(triangle_indices[0]), GL_UNSIGNED_BYTE, triangle_indices);
     glDisableClientState(GL_VERTEX_ARRAY);
-    printf("================================ START\n");
+    /*printf("================================ START\n");
     printf("rotation matrix  for angle %i:\n",csFixedToInt(angle));
     print_mf16(stdout, &rotMat);
     printf("-----------------------------------------\n");
     printf("final matrix :\n");
     print_mf16(stdout, &realMesh->modelTransform);
-    printf("================================ END\n");
+    printf("================================ END\n");*/
     GLenum glError = glGetError();
     if (glError != GL_NO_ERROR)
     {
@@ -110,7 +108,7 @@ void csMeshCreatePrimitivePyramid(csMesh **output)
     csMatInit(&proj);
     csMatFillDiagonal(&proj,1 << 16);
     csFixed fovy = csFixedFromFloat(90.0f);
-    csFixed aspect = csFixedFromFloat(4 / 3);
+    csFixed aspect = csFixedDiv(4 << 16,3 << 16);
     csFixed zNear = csFixedFromFloat(0.1f);
     csFixed zFar = csFixedFromFloat(100.0f);
     csMatPerspective(fovy, aspect, zNear, zFar, proj.data);
