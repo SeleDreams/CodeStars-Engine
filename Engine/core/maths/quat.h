@@ -15,53 +15,49 @@ static inline void csQuatNormalize(csQuat *dest, const csQuat *q) {qf16_normaliz
 static inline void csQuatPow(csQuat *dest, const csQuat *q, csFixed power) { qf16_pow(dest,q,power);}
 static inline void csQuatAvg(csQuat *dest, const csQuat *q1, const csQuat *q2, csFixed weight) { qf16_avg(dest,q1,q2,weight);}
 static inline void csQuatFromAxisAngle(csQuat *dest,const csVec3 *axis, csFixed angle) {qf16_from_axis_angle(dest,axis,angle);}
-static inline void csQuatToMatrix(csMat4 *dest, const csQuat *q) { 
-    csFixed w,x,y,z,
-            xx,yy,zz,
-            xy,yz,xz,
-            wx,wy,wz,
-            norm,s;
-    norm = csQuatLength(q);
-    s = norm > 0 << 16 ? csFixedDiv(2 << 16,norm) : 0 << 16;
 
-    x = -q->b;
-    y = -q->c;
-    z = -q->d;
-    w = q->a;
+#define FIXED_POINT_ONE (1 << 16)
+#define FIXED_POINT_TWO (2 << 16)
 
-    xx = csFixedMul(csFixedMul(s,x),x);
-    yy = csFixedMul(csFixedMul(s,y),y);
-    zz = csFixedMul(csFixedMul(s,z),z);
+static inline void csQuatToMat(const qf16 *q, mf16 *matrix) {
+    fix16_t xx = csFixedMul(q->b, q->b);
+    fix16_t xy = csFixedMul(q->b, q->c);
+    fix16_t xz = csFixedMul(q->b, q->d);
+    fix16_t xw = csFixedMul(q->b, q->a);
 
-    xy = csFixedMul(csFixedMul(s,x),y);
-    yz = csFixedMul(csFixedMul(s,y),z);
-    xz = csFixedMul(csFixedMul(s,x),z);
+    fix16_t yy = csFixedMul(q->c, q->c);
+    fix16_t yz = csFixedMul(q->c, q->d);
+    fix16_t yw = csFixedMul(q->c, q->a);
 
-    wx = csFixedMul(csFixedMul(s,w),x);
-    wy = csFixedMul(csFixedMul(s,w),y);
-    wz = csFixedMul(csFixedMul(s,w),z);
+    fix16_t zz = csFixedMul(q->d, q->d);
+    fix16_t zw = csFixedMul(q->d, q->a);
 
-    csMatSet(dest,0,0,(1 << 16) - yy - zz);
-    csMatSet(dest,1,1,(1 << 16) - xx - zz);
-    csMatSet(dest,2,2,(1 << 16) - xx - yy);
+    matrix->rows = 4;
+    matrix->columns = 4;
+    matrix->errors = 0;
 
-    csMatSet(dest,0,1,xy + wz);
-    csMatSet(dest,1,2,yz + wx);
-    csMatSet(dest,2,0,xz + wy);
+    matrix->data[0] = FIXED_POINT_ONE - csFixedMul(FIXED_POINT_TWO, yy + zz);
+    matrix->data[1] = csFixedMul(FIXED_POINT_TWO, xy + zw);
+    matrix->data[2] = csFixedMul(FIXED_POINT_TWO, xz - yw);
+    matrix->data[3] = 0;
 
-    csMatSet(dest,1,0,xy - wz);
-    csMatSet(dest,2,1,yz - wx);
-    csMatSet(dest,0,2,xz - wy);
+    matrix->data[4] = csFixedMul(FIXED_POINT_TWO, xy - zw);
+    matrix->data[5] = FIXED_POINT_ONE - csFixedMul(FIXED_POINT_TWO, xx + zz);
+    matrix->data[6] = csFixedMul(FIXED_POINT_TWO, yz + xw);
+    matrix->data[7] = 0;
 
-    csMatSet(dest,0,3,0);
-    csMatSet(dest,1,3,0);
-    csMatSet(dest,2,3,0);
-    csMatSet(dest,3,0,0);
-    csMatSet(dest,3,1,0);
-    csMatSet(dest,3,2,0);
-    csMatSet(dest,3,3,1 << 16);
-    
+    matrix->data[8] = csFixedMul(FIXED_POINT_TWO, xz + yw);
+    matrix->data[9] = csFixedMul(FIXED_POINT_TWO, yz - xw);
+    matrix->data[10] = FIXED_POINT_ONE - csFixedMul(FIXED_POINT_TWO, xx + yy);
+    matrix->data[11] = 0;
+
+    matrix->data[12] = 0;
+    matrix->data[13] = 0;
+    matrix->data[14] = 0;
+    matrix->data[15] = FIXED_POINT_ONE;
 }
+
+
 static inline void csQuatRotateVector(csVec3 *dest, const csQuat *q, const csVec3 *v) { qf16_rotate(dest,q,v);}
 static inline void csQuatFromVector(csQuat *q, const csVec3 *v,csFixed a) {qf16_from_v3d(q,v,a);}
 static inline void csQuatToVector(csVec3 *v,const csQuat *q){qf16_to_v3d(v,q);}

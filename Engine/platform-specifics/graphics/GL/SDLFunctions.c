@@ -7,9 +7,6 @@
 #include <assert.h>
 #include "core/memory/pool_allocator.h"
 #include <SDL_syswm.h>
-#if defined(WIN32)
-#include <dwmapi.h>
-#endif
 static const csGraphicsContextImpl csGLGraphicsContextImpl = {
     .Create = csSDLGraphicsContextCreate,
     .Destroy = csSDLGraphicsContextDestroy,
@@ -35,18 +32,6 @@ int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, uns
     window->height = height;
     window->width = width;
     window->name = name;
-    #if defined(WIN32) && !defined(UNIX)
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(window->window, &wmInfo);
-    HWND hwnd = wmInfo.info.win.window;
-    
-
-    COLORREF titlebar_color = 0x0015171E;
-    DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR,&titlebar_color, sizeof(titlebar_color));
-
-    DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR,&titlebar_color, sizeof(titlebar_color));
-    #endif
     window->glContext = SDL_GL_CreateContext(window->window);
     SDL_GL_GetDrawableSize(window->window,&window->buffer_width,&window->buffer_height);
     glViewport(0,0,window->buffer_width,window->buffer_height);
@@ -113,12 +98,23 @@ int csSDLGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned 
     }
     SDL_SetMainReady();
     SDL_Init(SDL_INIT_VIDEO);
-    #ifndef USE_GLEW
-    SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
-    #endif
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#ifdef USE_GLEW
+    if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES) != 0)
+    {
+        printf("Failed to set SDL_GL_CONTEXT_PROFILE_MASK: %s\n", SDL_GetError());
+        return 6;
+    }
+    if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1) != 0)
+    {
+        printf("Failed to set SDL_GL_CONTEXT_MAJOR_VERSION: %s\n", SDL_GetError());
+        return 7;
+    }
+    if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1) != 0)
+    {
+        printf("Failed to set SDL_GL_CONTEXT_MINOR_VERSION: %s\n", SDL_GetError());
+        return 8;
+    }
+#endif
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -136,21 +132,11 @@ int csSDLGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned 
     }
     SDL_GL_MakeCurrent(((csGLGraphicsContext*)context)->windows[0]->window,((csGLGraphicsContext*)context)->windows[0]->glContext);
     assert(SDL_GL_GetCurrentContext() != NULL);
-    #ifdef USE_GLEW
-    GLenum err = glewInit();
-    if (GLEW_OK != err)
-    {
-        
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-    }
-    #endif
     SDL_version version;
     SDL_GetVersion(&version);
     printf("SDL version : %d.%d.%d\n",version.major,version.minor,version.patch);
     printf("GL version : %s\nGL renderer : %s\n",glGetString(GL_VERSION),glGetString(GL_RENDERER));
-    #ifdef USE_GLEW
-    printf("Using GLEW %s\n", glewGetString(GLEW_VERSION));
-    #endif
+
     return 0;
 }
 
@@ -183,7 +169,7 @@ void csSDLGraphicsFrameStart(csGraphicsContext context)
     }
     csGraphicsWindow *current_window = ((csGLGraphicsContext*)context)->windows[((csGLGraphicsContext*)context)->main_window];
     SDL_GL_MakeCurrent(current_window->window,current_window->glContext);
-    glClearColor(0.2,0.2,0.2,1.0);
+    glClearColorx(0.5 * 65536,0.5 * 65536,0.5*65536,1 * 65536);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

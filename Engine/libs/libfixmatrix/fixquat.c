@@ -125,19 +125,20 @@ void qf16_to_matrix(mf16 *dest, const qf16 *q)
 {
     dest->rows = dest->columns = 3;
     dest->errors = 0;
-    dest->data[0][0] = fix16_one - 2 * (fix16_sq(q->c) + fix16_sq(q->d));
-    dest->data[1][1] = fix16_one - 2 * (fix16_sq(q->b) + fix16_sq(q->d));
-    dest->data[2][2] = fix16_one - 2 * (fix16_sq(q->b) + fix16_sq(q->c));
-    
-    dest->data[1][0] = 2 * (fix16_mul(q->b, q->c) + fix16_mul(q->a, q->d));
-    dest->data[0][1] = 2 * (fix16_mul(q->b, q->c) - fix16_mul(q->a, q->d));
-    
-    dest->data[2][0] = 2 * (fix16_mul(q->b, q->d) - fix16_mul(q->a, q->c));
-    dest->data[0][2] = 2 * (fix16_mul(q->b, q->d) + fix16_mul(q->a, q->c));
-    
-    dest->data[2][1] = 2 * (fix16_mul(q->c, q->d) + fix16_mul(q->a, q->b));
-    dest->data[1][2] = 2 * (fix16_mul(q->c, q->d) - fix16_mul(q->a, q->b));
+    dest->data[0] = fix16_one - 2 * (fix16_sq(q->c) + fix16_sq(q->d));
+    dest->data[4] = fix16_one - 2 * (fix16_sq(q->b) + fix16_sq(q->d));
+    dest->data[8] = fix16_one - 2 * (fix16_sq(q->b) + fix16_sq(q->c));
+
+    dest->data[3] = 2 * (fix16_mul(q->b, q->c) + fix16_mul(q->a, q->d));
+    dest->data[1] = 2 * (fix16_mul(q->b, q->c) - fix16_mul(q->a, q->d));
+
+    dest->data[6] = 2 * (fix16_mul(q->b, q->d) - fix16_mul(q->a, q->c));
+    dest->data[2] = 2 * (fix16_mul(q->b, q->d) + fix16_mul(q->a, q->c));
+
+    dest->data[7] = 2 * (fix16_mul(q->c, q->d) + fix16_mul(q->a, q->b));
+    dest->data[5] = 2 * (fix16_mul(q->c, q->d) - fix16_mul(q->a, q->b));
 }
+
 
 void qf16_rotate(v3d *dest, const qf16 *q, const v3d *v)
 {

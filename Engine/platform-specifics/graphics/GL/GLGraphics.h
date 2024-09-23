@@ -1,12 +1,7 @@
 #ifndef CS_GLGRAPHICS_H
 #define CS_GLGRAPHICS_H
 #include <core/graphics/Graphics.h>
-#ifdef USE_GLEW
-#include <gl/glew.h>
-#else
-#include <SDL2/SDL_opengles2.h>
-#include <SDL2/SDL_egl.h>
-#endif
+#include <gles/gl.h>
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 typedef struct csGraphicsWindow

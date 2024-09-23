@@ -30,7 +30,7 @@
 
 // Maximum size of matrices.
 #ifndef FIXMATRIX_MAX_SIZE
-#define FIXMATRIX_MAX_SIZE 8
+#define FIXMATRIX_MAX_SIZE 4
 #endif
 
 typedef struct {
@@ -47,10 +47,9 @@ typedef struct {
      */
     uint8_t errors;
     
-    /* Data is stored in memory in row-major format, e.g.
-     * entry at (row, column) is data[row][column]
+    /* Data is stored in memory in column-major format
      */
-    fix16_t data[FIXMATRIX_MAX_SIZE][FIXMATRIX_MAX_SIZE];
+    fix16_t data[FIXMATRIX_MAX_SIZE * FIXMATRIX_MAX_SIZE];
 } mf16;
 
 #define FIXMATRIX_OVERFLOW 0x01
@@ -61,6 +60,8 @@ typedef struct {
 
 // Initialization functions. These expect rows and column counts to be set be the caller,
 // everything else is initialized by the functions.
+
+void mf16_initialize(mf16 *matrix, int rows, int columns);
 
 // Fill all the entries with the same value, and clear error status.
 void mf16_fill(mf16 *dest, fix16_t value);

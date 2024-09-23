@@ -5,6 +5,12 @@
 #include <time.h>
 #include <unistd.h>
 
+csMat4 transMat;
+csMat4 scaleMat;
+csMat4 rotMat;
+csMat4 proj;
+csQuat rotation;
+
 int LoadFile(const char *path, uint32_t **output,size_t *length)
 {
     // Open the file.
@@ -47,14 +53,14 @@ int LoadFile(const char *path, uint32_t **output,size_t *length)
 int main(void)
 {
     csMemPoolAllocatorInit(&csMemPoolAllocatorGlobal,8);
-    uint32_t *vertex_shader = NULL;
+    uint32_t *vertex_shader_src = NULL;
     size_t vertex_shader_size = 0;
-    uint32_t *fragment_shader = NULL;
+    uint32_t *fragment_shader_src = NULL;
     size_t fragment_shader_size = 0;
-    if (LoadFile("./shaders/vertex.spv", &vertex_shader,&vertex_shader_size) || LoadFile("./shaders/fragment.spv", &fragment_shader,&fragment_shader_size)) {
+    if (LoadFile("./shaders/vertex.spv", &vertex_shader_src,&vertex_shader_size) || LoadFile("./shaders/fragment.spv", &fragment_shader_src,&fragment_shader_size)) {
         return 1;
     }
-    csShader *shader = csShaderCreate();
+    csShader *shader = csMalloc(sizeof(int));
     csGLGraphicsInit();
     csGraphicsContext context = NULL;
     if (csGraphicsContextCreate(&context, 800, 600, "New Window"))
@@ -63,12 +69,12 @@ int main(void)
         return 1;
     }
     csMesh *mesh = NULL;
-    csMeshCreatePrimitiveTriangle(&mesh);
+    csMeshCreatePrimitivePyramid(&mesh);
     const int framerate = 60;
     csGraphicsContextSetTargetFramerate(context, framerate);
-    int result = csShaderLoad(shader, vertex_shader,vertex_shader_size, fragment_shader,fragment_shader_size);
-    csFree(vertex_shader,sizeof(uint32_t) * vertex_shader_size);
-    csFree(fragment_shader,sizeof(uint32_t) * fragment_shader_size);
+    int result = 0;// csShaderLoad(shader, vertex_shader_src,vertex_shader_size, fragment_shader_src,fragment_shader_size);
+    csFree(vertex_shader_src,sizeof(uint32_t) * vertex_shader_size);
+    csFree(fragment_shader_src,sizeof(uint32_t) * fragment_shader_size);
     if (result)
     {
         printf("An error occurred while loadings the shaders!\n");
@@ -85,9 +91,10 @@ int main(void)
     }
     csGraphicsContextDestroy(&context);
     csMeshFree(mesh);
-    csShaderDestroy(shader);
+    csFree(shader,sizeof(int));
+//    csShaderDestroy(shader);
     if (csAllocatedData() > 0) {
-        printf("Exited with %llu bytes of leaked data !", csAllocatedData());
+        printf("Exited with %llu bytes of leaked data !\n", csAllocatedData());
     }
     return 0;
 }

@@ -17,5 +17,5 @@ extern csMemoryChunk *csMemPoolAllocatorAllocPool(csMemPoolAllocator *allocator,
 
 static inline void *csMalloc(size_t size) {csMemPoolAllocatorAllocatedData += size; return csMemPoolAllocatorAlloc(&csMemPoolAllocatorGlobal,size);}
 static inline void csFree(void *ptr,size_t size) {csMemPoolAllocatorAllocatedData -= size; csMemPoolAllocatorDealloc(&csMemPoolAllocatorGlobal,ptr,size);}
-static inline size_t csAllocatedData() {return csMemPoolAllocatorAllocatedData;}
+static inline size_t csAllocatedData(void) {return csMemPoolAllocatorAllocatedData;}
 #endif

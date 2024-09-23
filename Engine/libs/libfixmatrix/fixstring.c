@@ -25,17 +25,19 @@ void print_mf16(FILE *stream, const mf16 *matrix)
     }
     
     int row, column;
-    for (row = 0; row < matrix->rows; row++)
+    for (column = 0; column < matrix->columns; column++)
     {
-        for (column = 0; column < matrix->columns; column++)
+        for (row = 0; row < matrix->rows; row++)
         {
-            fix16_t value = matrix->data[row][column];
+            fix16_t value = matrix->data[column * matrix->rows + row];
             print_fix16_t(stream, value, 9, 4);
             fprintf(stream, " ");
         }
         fprintf(stream, "\n");
     }
+    fprintf(stream, "\n");
 }
+
 
 void print_qf16(FILE *stream, const qf16 *quat)
 {
