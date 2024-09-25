@@ -1,57 +1,50 @@
+#include <stdlib.h>
 #include "pool_allocator.h"
-#include <stdio.h>
-
-#define reinterpret_cast(TO, VAR) \
-({                                \
-    union                         \
-    {                             \
-        __typeof__((VAR)) source; \
-        TO dest;                  \
-    } u = { .source = (VAR) };    \
-    (TO)(u.dest);                 \
-})
-
-csMemPoolAllocator csMemPoolAllocatorGlobal;
+MemoryPool csMemPoolAllocatorGlobal;
 size_t csMemPoolAllocatorAllocatedData;
 
-void csMemPoolAllocatorInit(csMemPoolAllocator *allocator, size_t chunksPerBlock) {
-    allocator->chunksPerBlock = chunksPerBlock;
-    allocator->memoryChunk = NULL;
+void initMemoryPool(MemoryPool* pool) {
+    pool->freeList = (MemoryBlock*)pool->pool;
+    pool->freeList->next = NULL;
+    pool->freeList->size = POOL_SIZE - sizeof(MemoryBlock);
     csMemPoolAllocatorAllocatedData = 0;
 }
 
-void *csMemPoolAllocatorAlloc(csMemPoolAllocator *allocator, size_t size) {
-    if(allocator->memoryChunk == NULL)
-    {
-        allocator->memoryChunk = csMemPoolAllocatorAllocPool(allocator,size);
+void* pool_malloc(MemoryPool* pool, size_t size) {
+    size = (size + ALIGNMENT - 1) & ~(ALIGNMENT - 1);  // Align size
+    MemoryBlock* prev = NULL;
+    MemoryBlock* block = pool->freeList;
+
+    while (block) {
+        // Align the block address
+        uintptr_t blockAddr = (uintptr_t)block;
+        uintptr_t alignedAddr = (blockAddr + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
+        size_t padding = alignedAddr - blockAddr;
+
+        if (block->size >= size + padding) {
+            if (block->size >= size + padding + sizeof(MemoryBlock) + ALIGNMENT) {
+                MemoryBlock* newBlock = (MemoryBlock*)((char*)block + sizeof(MemoryBlock) + size + padding);
+                newBlock->size = block->size - size - padding - sizeof(MemoryBlock);
+                newBlock->next = block->next;
+                block->next = newBlock;
+                block->size = size + padding;
+            }
+            if (prev) {
+                prev->next = block->next;
+            } else {
+                pool->freeList = block->next;
+            }
+            return (char*)alignedAddr + sizeof(MemoryBlock);
+        }
+        prev = block;
+        block = block->next;
     }
-    if (allocator->memoryChunk == NULL) {
-        printf("An error occurred when allocating data !\n");
-    }
-    csMemoryChunk *freeChunk = allocator->memoryChunk;
-    allocator->memoryChunk = allocator->memoryChunk->next;
-    return freeChunk;
+    return NULL;  // Pool is exhausted
 }
 
-void csMemPoolAllocatorDealloc(csMemPoolAllocator *allocator, void *ptr, size_t size){
-    reinterpret_cast(csMemoryChunk*,ptr)->next = allocator->memoryChunk;
-    allocator->memoryChunk = reinterpret_cast(csMemoryChunk*,ptr);
-}
 
-csMemoryChunk *csMemPoolAllocatorAllocPool(csMemPoolAllocator *allocator, size_t size){
-    //printf("Allocating block (%d chunks) resulting in %d bytes allocated:\n\n",allocator->chunksPerBlock,allocator->chunksPerBlock * size);
-    size_t blockSize = allocator->chunksPerBlock * size;
-    csMemoryChunk *blockBegin = reinterpret_cast(csMemoryChunk*,malloc(blockSize));
-    if (blockBegin == NULL) {
-        // Handle memory allocation failure
-        return NULL;
-    }
-    csMemoryChunk *chunk = blockBegin;
-    for (int i = 0; i < allocator->chunksPerBlock - 1;++i)
-    {
-        chunk->next = reinterpret_cast(csMemoryChunk*,reinterpret_cast(char*,chunk) + size);
-        chunk = chunk->next;
-    } 
-    chunk->next = NULL;
-    return blockBegin;
+void pool_free(MemoryPool* pool, void* ptr) {
+    MemoryBlock* block = (MemoryBlock*)((char*)ptr - sizeof(MemoryBlock));
+    block->next = pool->freeList;
+    pool->freeList = block;
 }

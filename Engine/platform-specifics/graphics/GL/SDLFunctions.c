@@ -18,7 +18,7 @@ static const csGraphicsContextImpl csGLGraphicsContextImpl = {
     .Update = csSDLGraphicsUpdate
 };
 
-int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, unsigned int height, const char *name)
+int csSDLGraphicsCreateWindow(csGraphicsContext *context, unsigned int width, unsigned int height, const char *name)
 {
     if (context == NULL)
     {
@@ -33,20 +33,21 @@ int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, uns
     window->width = width;
     window->name = name;
     window->glContext = SDL_GL_CreateContext(window->window);
-    SDL_GL_GetDrawableSize(window->window,&window->buffer_width,&window->buffer_height);
-    glViewport(0,0,window->buffer_width,window->buffer_height);
-    glEnable(GL_DEPTH_TEST);
     GLenum glError = glGetError();
     if (glError)
     {
          printf("OpenGL Error during context creation : 0x%x\n",glError);
+         csSDLGraphicsWindowDestroy(window);
          return 1;
     }
-    assert(window->glContext != NULL);
+    SDL_GL_GetDrawableSize(window->window,&window->buffer_width,&window->buffer_height);
+    glViewport(0,0,window->buffer_width,window->buffer_height);
+    glEnable(GL_DEPTH_TEST);
     window->renderer = SDL_CreateRenderer(window->window,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-    if (!window || !window->window)
+    if (window->window == NULL)
     {
         printf("An error occurred while creating the SDL window! : %s\n",SDL_GetError());
+        csSDLGraphicsWindowDestroy(window);
         return 2;
     }
     ((csGLGraphicsContext*)context)->window_count += 1;
@@ -54,15 +55,26 @@ int csSDLGraphicsCreateWindow(csGraphicsContext context, unsigned int width, uns
     if (((csGLGraphicsContext*)context)->windows == NULL)
     {
         printf("An error occurred when calling realloc\n");
+        csSDLGraphicsWindowDestroy(window);
         return 3;
     }
     ((csGLGraphicsContext*)context)->windows[((csGLGraphicsContext*)context)->window_count - 1] = window;
     return 0;
 }
 
-int csSDLGraphicsRemoveWindow(csGraphicsContext context, int window_id)
+void csSDLGraphicsWindowDestroy(csGraphicsWindow *window) {
+    if (window->window != NULL)
+        SDL_DestroyWindow(window->window);
+    if (window->glContext != NULL)
+        SDL_GL_DeleteContext(window->glContext);
+    if (window->renderer != NULL)
+        SDL_DestroyRenderer(window->renderer);
+    csFree(window,sizeof(csGraphicsWindow));
+}
+
+int csSDLGraphicsRemoveWindow(csGraphicsContext *context, int window_id)
 {
-    if (!context)
+    if (context == NULL)
     {
         printf("The context provided is null, cannot create new window\n");
         return 1;
@@ -73,15 +85,12 @@ int csSDLGraphicsRemoveWindow(csGraphicsContext context, int window_id)
         return 2;
     }
     csGraphicsWindow *window = ((csGLGraphicsContext*)context)->windows[window_id];
-    if (!window)
+    if (window == NULL)
     {
         printf("The window cannot be null!\n");
         return 3;
     }
-    SDL_DestroyWindow(window->window);
-    SDL_GL_DeleteContext(window->glContext);
-    SDL_DestroyRenderer(window->renderer);
-    csFree(window,sizeof(csGraphicsWindow));
+    csSDLGraphicsWindowDestroy(window);
     ((csGLGraphicsContext*)context)->window_count -= 1;
     ((csGLGraphicsContext*)context)->windows[window_id] = ((csGLGraphicsContext*)context)->windows[((csGLGraphicsContext*)context)->window_count];
     ((csGLGraphicsContext*)context)->windows = realloc(((csGLGraphicsContext*)context)->windows, sizeof(csGraphicsWindow *) * ((csGLGraphicsContext*)context)->window_count);
@@ -89,9 +98,9 @@ int csSDLGraphicsRemoveWindow(csGraphicsContext context, int window_id)
     return 0;
 }
 
-int csSDLGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned int height, const char *name)
+int csSDLGraphicsCreate(csGraphicsContext *context, unsigned int width, unsigned int height, const char *name)
 {
-    if (!context)
+    if (context == NULL)
     {
         printf("The context provided is null\n");
         return 1;
@@ -135,12 +144,12 @@ int csSDLGraphicsCreate(csGraphicsContext context, unsigned int width, unsigned 
     SDL_version version;
     SDL_GetVersion(&version);
     printf("SDL version : %d.%d.%d\n",version.major,version.minor,version.patch);
-    printf("GL version : %s\nGL renderer : %s\n",glGetString(GL_VERSION),glGetString(GL_RENDERER));
+    printf("GL version : %s\nGL renderer : %s\n",(const char*)glGetString(GL_VERSION),(const char*)glGetString(GL_RENDERER));
 
     return 0;
 }
 
-void csSDLGraphicsTerminate(csGraphicsContext context)
+void csSDLGraphicsTerminate(csGraphicsContext *context)
 {
     if (context)
     {
@@ -161,19 +170,20 @@ void csSDLGraphicsTerminate(csGraphicsContext context)
     printf("Terminated SDL\n");
 }
 
-void csSDLGraphicsFrameStart(csGraphicsContext context)
+void csSDLGraphicsFrameStart(csGraphicsContext *context)
 {
-    for (int i = 0; i < ((csGLGraphicsContext*)context)->window_count; i++)
+    csGLGraphicsContext *glContext = (csGLGraphicsContext*)context;
+    for (int i = 0; i < (glContext)->window_count; i++)
     {
-        SDL_GL_MakeCurrent(((csGLGraphicsContext*)context)->windows[i]->window,((csGLGraphicsContext*)context)->windows[i]->glContext);
+        SDL_GL_MakeCurrent((glContext)->windows[i]->window,(glContext)->windows[i]->glContext);
     }
     csGraphicsWindow *current_window = ((csGLGraphicsContext*)context)->windows[((csGLGraphicsContext*)context)->main_window];
     SDL_GL_MakeCurrent(current_window->window,current_window->glContext);
-    glClearColorx(0.5 * 65536,0.5 * 65536,0.5*65536,1 * 65536);
+    glClearColorx(csFixedFromFloat(0.5),csFixedFromFloat(0.5),csFixedFromFloat(0.5),csFixedFromInt(1));
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void csSDLGraphicsFrameEnd(csGraphicsContext context)
+void csSDLGraphicsFrameEnd(csGraphicsContext *context)
 {
     for (int i = 0; i < ((csGLGraphicsContext*)context)->window_count; i++)
     {
@@ -181,9 +191,9 @@ void csSDLGraphicsFrameEnd(csGraphicsContext context)
     }
 }
 
-int csSDLGraphicsUpdate(csGraphicsContext context)
+int csSDLGraphicsUpdate(csGraphicsContext *context)
 {
-    if (!context)
+    if (context == NULL)
     {
         printf("The graphics context provided to csGraphicsUpdate is null!\n");
         return 0;
@@ -204,11 +214,11 @@ int csSDLGraphicsUpdate(csGraphicsContext context)
 
 void csSDLGraphicsContextDestroy(csGraphicsContext *context)
 {
-    if (*context)
+    if (context)
     {
-        csSDLGraphicsTerminate(*context);
+        csSDLGraphicsTerminate(context);
     }
-    *context = NULL;
+    context = NULL;
 }
 
 void csGLGraphicsInit(void)
@@ -216,13 +226,17 @@ void csGLGraphicsInit(void)
     csGraphicsInit(&csGLGraphicsContextImpl);
 }
 
-int csSDLGraphicsContextCreate(csGraphicsContext *context, int width, int height, const char *name)
+int csSDLGraphicsContextCreate(csGraphicsContext **context, int width, int height, const char *name)
 {
     static int initialized = 0;
+    if (context == NULL) {
+        printf("The context pointer reference provided is null\n");
+        return 1;
+    }
     if (initialized)
     {
         printf("Attempted to initialize the context twice, this is not allowed\n");
-        return 0;
+        return 1;
     }
     if (*context)
     {
@@ -230,7 +244,7 @@ int csSDLGraphicsContextCreate(csGraphicsContext *context, int width, int height
         return 1;
     }
     *context = csMalloc(sizeof(csGLGraphicsContext));
-    if (!*context)
+    if (*context == NULL)
     {
         printf("context is null after allocation, something's wrong!\n");
         return 2;

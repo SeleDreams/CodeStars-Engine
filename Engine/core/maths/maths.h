@@ -15,8 +15,9 @@ typedef mf16 csMat4;
 static inline csFixed csFixedDegToRad(csFixed a) { return fix16_deg_to_rad(a); }
 static inline csFixed csFixedRadToDeg(csFixed a) { return fix16_rad_to_deg(a); }
 
-static inline csFixed csFixedFromInt(int value) { return fix16_from_int(value);}
-static inline csFixed csFixedFromFloat(float value) { return fix16_from_float(value);}
+#define csFixedFromInt(value) ((csFixed)F16(value))
+#define csFixedFromFloat(value) ((csFixed)F16(value))
+
 static inline float csFixedToFloat(csFixed value) { return fix16_to_float(value); }
 static inline int csFixedToInt(csFixed value) { return fix16_to_int(value); }
 static inline csFixed csFixedAdd(csFixed a,csFixed b) {return fix16_add(a,b);}

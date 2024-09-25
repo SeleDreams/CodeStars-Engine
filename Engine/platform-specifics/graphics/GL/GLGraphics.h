@@ -27,7 +27,7 @@ typedef struct csGLGraphicsContext
 } csGLGraphicsContext;
 
 void csGLGraphicsInit(void);
-void csGLGraphicsContextSetTargetFramerate(csGraphicsContext context, int framerate);
-int csGLGraphicsContextGetTargetFramerate(const csGraphicsContext context);
-float csGLGraphicsContextGetDelta(const csGraphicsContext context);
+void csGLGraphicsContextSetTargetFramerate(csGraphicsContext *context, int framerate);
+int csGLGraphicsContextGetTargetFramerate(const csGraphicsContext *context);
+float csGLGraphicsContextGetDelta(const csGraphicsContext *context);
 #endif

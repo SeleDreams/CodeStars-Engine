@@ -1,23 +1,16 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <CodeStarsEngine.h>
-#include <fixstring.h>
-#include <platform-specifics/graphics/GL/GLGraphics.h>
 #include <time.h>
-#include <unistd.h>
+#include <platform-specifics/graphics/GL/GLGraphics.h>
 
-csMat4 transMat;
-csMat4 scaleMat;
-csMat4 rotMat;
-csMat4 proj;
-csQuat rotation;
 static csFixed delta;
 int main(void)
 {
-    csMemPoolAllocatorInit(&csMemPoolAllocatorGlobal,8);
+    initMemoryPool(&csMemPoolAllocatorGlobal);
+    //csMemPoolAllocatorInit(&csMemPoolAllocatorGlobal,8);
     csGLGraphicsInit();
-    csGraphicsContext context = NULL;
-    if (csGraphicsContextCreate(&context, 800, 600, "New Window"))
+    csGLGraphicsContext *context = NULL;
+    if (csGraphicsContextCreate(&context, 1280, 720, "New Window"))
     {
         printf("An error occurred while initializing the graphics context\n");
         return 1;
@@ -32,12 +25,14 @@ int main(void)
         csMeshDraw(mesh,NULL);
         csGraphicsFrameEnd(context);
         delta = csGraphicsWaitForNextFrame(framerate);
-        printf("fps : %i\n",csFixedDiv(1 << 16,delta) >> 16);
+        int fps = csFixedToInt(csFixedDiv(csFixedFromInt(CLOCKS_PER_SEC), delta));
+        printf("fps : %i\n",fps);
     }
-    csGraphicsContextDestroy(&context);
+    csGraphicsContextDestroy(context);
     csMeshFree(mesh);
     if (csAllocatedData() > 0) {
         printf("Exited with %llu bytes of leaked data !\n", csAllocatedData());
     }
+    while (getchar() != '\n'){}
     return 0;
 }

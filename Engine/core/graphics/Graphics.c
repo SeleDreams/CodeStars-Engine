@@ -19,37 +19,37 @@ void csGraphicsContextDestroy(csGraphicsContext *context)
     backend.Destroy(context);
 }
 
-void csGraphicsContextSetTargetFramerate(csGraphicsContext context, int framerate)
+void csGraphicsContextSetTargetFramerate(csGraphicsContext *context, int framerate)
 {
     assert(backend.SetTargetFramerate);
     backend.SetTargetFramerate(context,framerate);
 }
 
-int csGraphicsContextGetTargetFramerate(const csGraphicsContext context)
+int csGraphicsContextGetTargetFramerate(const csGraphicsContext *context)
 {
     assert(backend.GetTargetFramerate);
     return backend.GetTargetFramerate(context);
 }
 
-float csGraphicsContextGetDelta(const csGraphicsContext context) 
+float csGraphicsContextGetDelta(const csGraphicsContext *context)
 {
     assert(backend.GetDelta);
     return backend.GetDelta(context);
 }
 
-void csGraphicsFrameStart(csGraphicsContext context)
+void csGraphicsFrameStart(csGraphicsContext *context)
 {
     assert(backend.FrameStart);
     backend.FrameStart(context);
 }
 
-void csGraphicsFrameEnd(csGraphicsContext context)
+void csGraphicsFrameEnd(csGraphicsContext *context)
 {
     assert(backend.FrameEnd);
     backend.FrameEnd(context);
 }
 
-int csGraphicsUpdate(csGraphicsContext context)
+int csGraphicsUpdate(csGraphicsContext *context)
 {
     assert(backend.Update);
     return backend.Update(context);
@@ -57,29 +57,28 @@ int csGraphicsUpdate(csGraphicsContext context)
 
 csFixed csGraphicsWaitForNextFrame(int framerate)
 {
-    static csFixed last_frame_seconds = 0;
-    static csFixed current_frame_seconds = 0;
+    static clock_t last_frame_ticks = 0;
+    static clock_t current_frame_ticks = 0;
     static csFixed delta;
-    static const csFixed CLOCKS_PER_SEC_FIXED = CLOCKS_PER_SEC * fix16_one;
     static int clk;
 
-    delta = csFixedFromFloat(0.001);
+    delta = csFixedFromFloat(0.0);
 
-    if (last_frame_seconds == 0)
+    if (last_frame_ticks == 0)
     {
         clk = clock();
-        last_frame_seconds = csFixedDiv(csFixedFromInt(clk)  ,CLOCKS_PER_SEC_FIXED);
+        last_frame_ticks = clk;
     }
-
-    while (csFixedToInt(csFixedDiv(1 << 16, delta)) > framerate)
+    const csFixed targetDelta = csFixedDiv(csFixedFromInt(CLOCKS_PER_SEC), csFixedFromInt(framerate));
+    while (delta < targetDelta)
     {
         clk = clock();
-        current_frame_seconds = csFixedDiv(csFixedFromInt(clk) ,CLOCKS_PER_SEC_FIXED);
-        delta = current_frame_seconds - last_frame_seconds;
-        if (delta == 0) {
-            delta = csFixedFromFloat(0.0001);
-        }
+        current_frame_ticks = clk;
+        clock_t result = current_frame_ticks - last_frame_ticks;
+
+        delta = csFixedFromInt(result);
     }
-    last_frame_seconds = current_frame_seconds;
+    last_frame_ticks = current_frame_ticks;
     return delta;
 }
+

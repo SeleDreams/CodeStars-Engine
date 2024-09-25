@@ -1,17 +1,17 @@
 #ifndef CS_GRAPHICS_H
 #define CS_GRAPHICS_H
 #include "../maths/includes.h"
-typedef void* csGraphicsContext;
+typedef void csGraphicsContext;
 
 typedef struct csGraphicsContextImpl {
-     int (*Create)(csGraphicsContext *context, int width, int height, const char *name);
-    void (*SetTargetFramerate)(csGraphicsContext context, int framerate);
+     int (*Create)(csGraphicsContext **context, int width, int height, const char *name);
+    void (*SetTargetFramerate)(csGraphicsContext *context, int framerate);
     void (*Destroy)(csGraphicsContext *context);
-    float (*GetDelta)(const csGraphicsContext context);
-    int (*GetTargetFramerate)(const csGraphicsContext context);
-    void (*FrameStart)(csGraphicsContext context);
-    void (*FrameEnd)(csGraphicsContext context);
-    int (*Update)(csGraphicsContext context);
+    float (*GetDelta)(const csGraphicsContext *context);
+    int (*GetTargetFramerate)(const csGraphicsContext *context);
+    void (*FrameStart)(csGraphicsContext *context);
+    void (*FrameEnd)(csGraphicsContext *context);
+    int (*Update)(csGraphicsContext *context);
 } csGraphicsContextImpl;
 
 typedef struct Mesh Mesh;
@@ -23,11 +23,11 @@ csFixed csGraphicsWaitForNextFrame(int framerate);
 int csGraphicsContextCreate(csGraphicsContext *context, int width, int height, const char *name);
 void csGraphicsContextDestroy(csGraphicsContext *context);
 
-void csGraphicsContextSetTargetFramerate(csGraphicsContext context, int framerate);
-int csGraphicsContextGetTargetFramerate(const csGraphicsContext context);
+void csGraphicsContextSetTargetFramerate(csGraphicsContext *context, int framerate);
+int csGraphicsContextGetTargetFramerate(const csGraphicsContext *context);
 
-float csGraphicsContextGetDelta(const csGraphicsContext context);
-void csGraphicsFrameStart(csGraphicsContext context);
-void csGraphicsFrameEnd(csGraphicsContext context);
-int csGraphicsUpdate(csGraphicsContext context);
+float csGraphicsContextGetDelta(const csGraphicsContext *context);
+void csGraphicsFrameStart(csGraphicsContext *context);
+void csGraphicsFrameEnd(csGraphicsContext *context);
+int csGraphicsUpdate(csGraphicsContext *context);
 #endif
