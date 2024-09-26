@@ -31,7 +31,6 @@ csVec3 rotationAxis = {
 .z = 0
 };
 static csQuat rotation;
-csCamera *camera;
 static glMesh *realMesh;
 
 // Vertices of the pyramid (fixed-point format)
@@ -92,7 +91,7 @@ void updateRotation() {
     csQuatNormalize(&rotation, &rotation);
     csMatRotationSet(&realMesh->rotMat, &rotation);
 }
-
+ecs_entity_t camera;
 void csMeshDraw(csMesh *mesh, csShader *shader)
 {
     realMesh = (glMesh*)mesh;
@@ -107,16 +106,17 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
     csMatMul(&realMesh->modelTransform, &realMesh->modelTransform, &realMesh->rotMat);
     csMatMul(&realMesh->modelTransform, &realMesh->modelTransform, &realMesh->transMat);
 
+
     // Set up the projection matrix
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glLoadMatrixx(camera->projection.data);
-
+    const Projection *proj = ecs_get(csSceneRoot->world,camera,Projection);
+    glLoadMatrixx(proj->m.data);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-    glLoadMatrixx(camera->transform.global.data);
+    const ViewMatrix *view = ecs_get(csSceneRoot->world,camera,ViewMatrix);
+    glLoadMatrixx(view->m.data);
     glMultMatrixx(realMesh->modelTransform.data);
 
     // Enable client states
@@ -140,7 +140,13 @@ void csMeshCreatePrimitivePyramid(csMesh **output)
 {
     realMesh = csMalloc(sizeof(glMesh));
     *output = (csMesh*)realMesh;
-    camera = csSceneEntityByName(csSceneRoot,"Camera");
+    ecs_entities_t entities =  ecs_get_entities(csSceneRoot->world);
+    for (int i = 0; i < entities.alive_count; i++) {
+        ecs_entity_t id = entities.ids[i];
+        if (ecs_has(csSceneRoot->world,id,ViewMatrix)) {
+            camera = id;
+        }
+    }
     csMatInit(&realMesh->modelTransform);
     csMatFillDiagonal(&realMesh->modelTransform,csFixedFromInt(1));
 

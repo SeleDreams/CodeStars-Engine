@@ -4,15 +4,14 @@
 
 #ifndef CAMERA_H
 #define CAMERA_H
-#include "transform.h"
-#include "scene_entity.h"
-typedef struct csCamera {
-    csTransform transform;
-    csMat4 projection;
-} csCamera;
-void csCameraInit(csCamera *p_camera);
-void csCameraStart(csCamera *p_camera);
-void csCameraDestroy(csCamera *p_camera);
-void csCameraUpdate(csCamera *p_camera,csFixed delta);
-csSceneEntityImpl *csCreateCameraEntityImpl(void);
+#include "../maths/includes.h"
+#include <flecs.h>
+
+typedef struct {csMat4 m;} ViewMatrix,Projection;
+extern ECS_COMPONENT_DECLARE(ViewMatrix);
+extern ECS_COMPONENT_DECLARE(Projection);
+
+void csCameraImport(ecs_world_t *ecs);
+ecs_entity_t csCameraCreate(ecs_world_t *ecs);
+void csCameraUpdate(ecs_iter_t *it);
 #endif //CAMERA_H

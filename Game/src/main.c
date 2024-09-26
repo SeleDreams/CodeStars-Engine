@@ -18,9 +18,6 @@ int main(void)
     }
     csScene *scene = csMalloc(sizeof(csScene));
     csSceneInit(scene);
-    csSceneEntity *camEntity = csMalloc(sizeof(csSceneEntity));
-    csSceneEntityInit(camEntity,csCreateCameraEntityImpl());
-    csSceneAdd(scene,camEntity);
     csSceneStart(scene);
     csSceneRoot = scene;
     csMesh *mesh = NULL;
@@ -30,10 +27,11 @@ int main(void)
     while (csGraphicsUpdate(context))
     {
         csGraphicsFrameStart(context);
+        delta = csGraphicsWaitForNextFrame(framerate);
         csSceneUpdate(scene,delta);
         csMeshDraw(mesh,NULL);
         csGraphicsFrameEnd(context);
-        delta = csGraphicsWaitForNextFrame(framerate);
+
         int fps = csFixedToInt(csFixedDiv(csFixedFromInt(CLOCKS_PER_SEC), delta));
         printf("fps : %i\n",fps);
     }

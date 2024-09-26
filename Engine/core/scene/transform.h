@@ -5,12 +5,9 @@
 #ifndef SCENE_TRANSFORM_H
 #define SCENE_TRANSFORM_H
 #include "../maths/mat.h"
+#include <flecs.h>
 typedef struct csTransform {
-    csMat4 local;
-    csMat4 global;
+    csMat4 transform;
 } csTransform;
-
-void csTransformInit(csTransform *p_transform);
-
 
 #endif //SCENE_TRANSFORM_H

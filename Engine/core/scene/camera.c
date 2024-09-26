@@ -7,49 +7,43 @@
 #include <gles/gl.h>
 
 #include "../memory/pool_allocator.h"
+#include "../maths/includes.h"
+#include "transform.h"
 
-csVec3 csCameraPos = {
-    .x = csFixedFromFloat(0.0),
-    .y = csFixedFromFloat(0.0),
-    .z = csFixedFromFloat(-8.0)
-};
-void csCameraInit(csCamera *p_camera) {
-    if (p_camera == NULL) {
-        return;
-    }
-    GLint m_viewport[4];
+ECS_COMPONENT_DECLARE(ViewMatrix);
+ECS_COMPONENT_DECLARE(Projection);
+GLint m_viewport[4];
+void csCameraImport(ecs_world_t *ecs) {
     glGetIntegerv( GL_VIEWPORT, m_viewport );
-    csMatInit(&p_camera->projection);
-    csFixed fovy = csFixedFromFloat(45.0f);
-    csFixed aspect = csFixedDiv(csFixedFromInt(m_viewport[2]),csFixedFromInt(m_viewport[3]));
-    csFixed zNear = csFixedFromFloat(0.01f);
-    csFixed zFar = csFixedFromFloat(100.0f);
-    csMatPerspective(fovy, aspect, zNear, zFar, p_camera->projection.data);
-    csTransformInit(&p_camera->transform);
+    ECS_MODULE(ecs,csCamera);
+
+    ECS_COMPONENT_DEFINE(ecs,ViewMatrix);
+    ECS_COMPONENT_DEFINE(ecs,Projection);
+
+    ECS_SYSTEM(ecs, csCameraUpdate, EcsOnUpdate, ViewMatrix, Projection);
 }
 
-void csCameraStart(csCamera *p_camera) {
-    printf("The camera got initialized\n");
-    csMatTranslate(&p_camera->transform.global,&csCameraPos);
+void csCameraUpdate(ecs_iter_t *it) {
+    ViewMatrix *viewMatrix = ecs_field(it,ViewMatrix,0);
+    Projection *projection = ecs_field(it,Projection,1);
+    static const csVec3 csCameraPos = {
+        .x = csFixedFromFloat(0.0),
+        .y = csFixedFromFloat(0.0),
+        .z = csFixedFromFloat(-8.0)
+    };
+
+    for (int i = 0; i < it->count; i++) {
+        csMatInit(&projection[i].m);
+        csMatInit(&viewMatrix[i].m);
+        csFixed fovy = csFixedFromFloat(45.0f);
+        csFixed aspect = csFixedDiv(csFixedFromInt(m_viewport[2]),csFixedFromInt(m_viewport[3]));
+        csFixed zNear = csFixedFromFloat(0.01f);
+        csFixed zFar = csFixedFromFloat(100.0f);
+        csMatPerspective(fovy, aspect, zNear, zFar, projection[i].m.data);
+        csMatTranslate(&viewMatrix[i].m,&csCameraPos);
+    }
 }
 
-void csCameraUpdate(csCamera *p_camera,csFixed delta) {
-
-}
-
-void csCameraDestroy(csCamera *p_camera) {
-    printf("The camera got destroyed\n");
-    csFree(p_camera,sizeof(csCamera));
-}
-
-csSceneEntityImpl *csCreateCameraEntityImpl() {
-    csSceneEntityImpl *impl = csMalloc(sizeof(csSceneEntityImpl));
-    csSceneEntityImplInit(impl);
-    impl->object = csMalloc(sizeof(csCamera));
-    csCameraInit(impl->object);
-    impl->start = ((void (*)(void *))csCameraStart);
-    impl->update = ((void (*)(void *,csFixed))csCameraUpdate);
-    impl->destroy = ((void (*)(void *))csCameraDestroy);
-    impl->name = "Camera";
-    return impl;
+ecs_entity_t csCameraCreate(ecs_world_t *ecs) {
+    return ecs_insert(ecs, ecs_value(ViewMatrix, {}),ecs_value(Projection,{}));
 }
