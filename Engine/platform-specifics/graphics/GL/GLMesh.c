@@ -1,4 +1,5 @@
 #include <core/graphics/Mesh.h>
+#include "core/scene/camera.h"
 #include "core/maths/includes.h"
 #include "GLMesh.h"
 
@@ -8,15 +9,16 @@
 #include "GLShader.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <core/scene/scene.h>
 #include <gl/gl.h>
 
 #include "core/maths/mat.h"
 #include "core/memory/pool_allocator.h"
-static csMat4 proj;
+
 static csVec3 pos = {
 .x = 0,
 .y = 0,
-.z = csFixedFromInt(-5)
+.z = 0
 };
 static csVec3 size = {
 .x = csFixedFromInt(1),
@@ -29,8 +31,9 @@ csVec3 rotationAxis = {
 .z = 0
 };
 static csQuat rotation;
-
+csCamera *camera;
 static glMesh *realMesh;
+
 // Vertices of the pyramid (fixed-point format)
 const GLfixed pyramid_vertices[] = {
     csFixedFromFloat(-1.0), csFixedFromFloat(1.0), csFixedFromFloat(-1.0),  // Top front left
@@ -68,7 +71,7 @@ const GLubyte pyramid_colors[] = {
 csFixed randomFixed() {
     return csFixedDiv(csFixedFromInt(rand() % 2001 - 1000), csFixedFromInt(1000));
 }
-// Function to generate a random rotation axis
+
 void generateRandomAxis(csVec3* axis) {
     axis->x = randomFixed();
     axis->y = randomFixed();
@@ -87,7 +90,7 @@ void updateRotation() {
     }
     csQuatFromAxisAngle(&rotation, &rotationAxis, csFixedDegToRad(angle));
     csQuatNormalize(&rotation, &rotation);
-    csMatSetRotation(&realMesh->rotMat, &rotation);
+    csMatRotationSet(&realMesh->rotMat, &rotation);
 }
 
 void csMeshDraw(csMesh *mesh, csShader *shader)
@@ -95,11 +98,10 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
     realMesh = (glMesh*)mesh;
     static csFixed angle = csFixedFromInt(0);
     updateRotation();
-    csMatSetPosition(&realMesh->transMat, &pos);
+    csMatPositionSet(&realMesh->transMat, &pos);
 
-    csMatScale(&realMesh->scaleMat, &size);
+    csMatScaleSet(&realMesh->scaleMat, &size);
     csMatInit(&realMesh->modelTransform);
-    csMatFillDiagonal(&realMesh->modelTransform, csFixedFromInt(1));
 
     csMatMul(&realMesh->modelTransform, &realMesh->modelTransform, &realMesh->scaleMat);
     csMatMul(&realMesh->modelTransform, &realMesh->modelTransform, &realMesh->rotMat);
@@ -108,11 +110,14 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
     // Set up the projection matrix
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glLoadMatrixx(proj.data);
+    glLoadMatrixx(camera->projection.data);
+
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glLoadMatrixx(realMesh->modelTransform.data);
+
+    glLoadMatrixx(camera->transform.global.data);
+    glMultMatrixx(realMesh->modelTransform.data);
 
     // Enable client states
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -135,26 +140,17 @@ void csMeshCreatePrimitivePyramid(csMesh **output)
 {
     realMesh = csMalloc(sizeof(glMesh));
     *output = (csMesh*)realMesh;
-    GLint m_viewport[4];
-
-    glGetIntegerv( GL_VIEWPORT, m_viewport );
-    csMatInit(&proj);
-    csMatFillDiagonal(&proj,csFixedFromInt(1));
-    csFixed fovy = csFixedFromFloat(45.0f);
-    csFixed aspect = csFixedDiv(csFixedFromInt(m_viewport[2]),csFixedFromInt(m_viewport[3]));
-    csFixed zNear = csFixedFromFloat(0.01f);
-    csFixed zFar = csFixedFromFloat(100.0f);
-    csMatPerspective(fovy, aspect, zNear, zFar, proj.data);
+    camera = csSceneEntityByName(csSceneRoot,"Camera");
     csMatInit(&realMesh->modelTransform);
     csMatFillDiagonal(&realMesh->modelTransform,csFixedFromInt(1));
 
     csMatInit(&realMesh->transMat);
     csMatFillDiagonal(&realMesh->transMat,csFixedFromInt(1));
-    csMatSetPosition(&realMesh->transMat,&pos);
+    csMatPositionSet(&realMesh->transMat,&pos);
 
     csMatInit(&realMesh->scaleMat);
     csMatFillDiagonal(&realMesh->scaleMat,csFixedFromInt(1));
-    csMatScale(&realMesh->scaleMat,&size);
+    csMatScaleSet(&realMesh->scaleMat,&size);
 
     csMatInit(&realMesh->rotMat);
     csMatFillDiagonal(&realMesh->rotMat,csFixedFromInt(1));
