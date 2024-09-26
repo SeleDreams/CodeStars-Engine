@@ -1,6 +1,6 @@
 add_library(${PROJECT_NAME}_libs INTERFACE)
 add_subdirectory(libfixmatrix)
-add_compile_definitions(ecs_ftime_t=float)
+add_compile_definitions(ecs_ftime_t=int)
 add_subdirectory(flecs)
 target_link_libraries(${PROJECT_NAME}_libs INTERFACE flecs_static)
 target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_libs)
