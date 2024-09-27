@@ -81,7 +81,7 @@ static void csMatRotate(csMat4 *dest, const csQuat *p_rot) {
 }
 
 
-void csMatPerspective(csFixed fovy, csFixed aspect, csFixed zNear, csFixed zFar, csFixed *matrix);
+void csMatPerspective(csFixed fovy, csFixed aspect, csFixed zNear, csFixed zFar, csMat4 *projection);
 
 
 void csMatToFloat(csFMat4 *dest, const csMat4 *mat, int print);

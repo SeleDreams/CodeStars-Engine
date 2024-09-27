@@ -7,11 +7,11 @@
 #include "../maths/includes.h"
 #include <flecs.h>
 
-typedef struct {csMat4 m;} ViewMatrix,Projection;
-extern ECS_COMPONENT_DECLARE(ViewMatrix);
-extern ECS_COMPONENT_DECLARE(Projection);
+typedef struct {csMat4 projection;} csCamera;
+extern ECS_COMPONENT_DECLARE(csCamera);
 
-void csCameraImport(ecs_world_t *ecs);
+void csCameraModuleImport(ecs_world_t *ecs);
 ecs_entity_t csCameraCreate(ecs_world_t *ecs);
+void csCameraStart(ecs_iter_t *it);
 void csCameraUpdate(ecs_iter_t *it);
 #endif //CAMERA_H

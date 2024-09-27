@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 if (CMAKE_SYSTEM_NAME STREQUAL "NintendoDS")
-add_arm9_executable(${PROJECT_NAME} src/main.c)
+add_arm9_executable(${PROJECT_NAME} src/main.c src/MeshRotatorSystem.c)
 create_nds(${PROJECT_NAME} ${PROJECT_NAME})
 else()
-add_executable(${PROJECT_NAME} src/main.c)
+add_executable(${PROJECT_NAME} src/main.c
+        src/MeshRotatorSystem.c)
 endif()
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)

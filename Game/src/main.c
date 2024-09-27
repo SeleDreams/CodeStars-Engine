@@ -3,7 +3,9 @@
 #include <CodeStarsEngine.h>
 #include <scene.h>
 #include <time.h>
+#include "MeshRotatorSystem.h"
 #include <platform-specifics/graphics/GL/GLGraphics.h>
+#include <core/components/transform.h>
 csScene *csSceneRoot;
 static csFixed delta;
 int main(void)
@@ -17,11 +19,33 @@ int main(void)
         return 1;
     }
     csScene *scene = csMalloc(sizeof(csScene));
-    csSceneInit(scene);
-    csSceneStart(scene);
     csSceneRoot = scene;
-    csMesh *mesh = NULL;
-    csMeshCreatePrimitivePyramid(&mesh);
+    csSceneInit(scene);
+    void *pyramid = csMeshCreatePrimitivePyramid();
+
+    // Create a system for Position, Velocity.
+    ecs_system(scene->world, {
+        .entity = ecs_entity(scene->world, {
+            .name = "csMeshRotator",
+            .add = ecs_ids( ecs_dependson(EcsOnUpdate) )
+        }),
+        .query.terms = {
+            { .id = ecs_id(csMesh)},
+            {.id=ecs_id(csTransform) }
+        },
+        .callback = csMeshRotatorSystem
+    });
+
+    ecs_entity_t pyramid_entity = ecs_set_name(scene->world, 0, "Pyramid");
+    ecs_set(scene->world,pyramid_entity,csMesh,{pyramid});
+    ecs_set(scene->world,pyramid_entity,csTransform,{
+    .rows = 4,
+    .columns = 4,
+    .errors = 0,
+    .data = {0}
+});
+    csSceneStart(scene);
+
     const int framerate = 60;
     csGraphicsContextSetTargetFramerate(context, framerate);
     while (csGraphicsUpdate(context))
@@ -29,15 +53,13 @@ int main(void)
         csGraphicsFrameStart(context);
         delta = csGraphicsWaitForNextFrame(framerate);
         csSceneUpdate(scene,delta);
-        csMeshDraw(mesh,NULL);
         csGraphicsFrameEnd(context);
 
-        int fps = csFixedToInt(csFixedDiv(csFixedFromInt(CLOCKS_PER_SEC), delta));
+        int fps = csFixedToInt(csFixedDiv(csFixedFromInt(1), delta));
         printf("fps : %i\n",fps);
     }
     csSceneDestroy(scene);
     csGraphicsContextDestroy(context);
-    csMeshFree(mesh);
     if (csAllocatedData() > 0) {
         printf("Exited with %llu bytes of leaked data !\n", csAllocatedData());
     }

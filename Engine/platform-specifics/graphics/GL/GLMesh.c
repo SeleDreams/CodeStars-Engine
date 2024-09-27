@@ -6,7 +6,6 @@
 #include <fixstring.h>
 
 #include "GLGraphics.h"
-#include "GLShader.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <core/scene/scene.h>
@@ -14,23 +13,8 @@
 
 #include "core/maths/mat.h"
 #include "core/memory/pool_allocator.h"
+#include "core/components/transform.h"
 
-static csVec3 pos = {
-.x = 0,
-.y = 0,
-.z = 0
-};
-static csVec3 size = {
-.x = csFixedFromInt(1),
-.y = csFixedFromInt(1),
-.z = csFixedFromInt(1)
-};
-csVec3 rotationAxis = {
-.x = 0, // 1/sqrt(2)
-.y = csFixedFromInt(1), // 1/sqrt(2)
-.z = 0
-};
-static csQuat rotation;
 static glMesh *realMesh;
 
 // Vertices of the pyramid (fixed-point format)
@@ -67,112 +51,72 @@ const GLubyte pyramid_colors[] = {
     128, 0, 128, 255  // Purple for bottom back left
 };
 
-csFixed randomFixed() {
-    return csFixedDiv(csFixedFromInt(rand() % 2001 - 1000), csFixedFromInt(1000));
-}
 
-void generateRandomAxis(csVec3* axis) {
-    axis->x = randomFixed();
-    axis->y = randomFixed();
-    axis->z = randomFixed();
-    // Normalize the axis
-    csVec3Normalize(axis, axis);
-}
-static csFixed angle;
-
-void updateRotation() {
-    angle = csFixedAdd(angle, csFixedFromInt(5));
-    int angleInt = csFixedToInt(angle);
-    if (angleInt > 359) {
-        angle = csFixedFromInt(1);
-        generateRandomAxis(&rotationAxis);
-    }
-    csQuatFromAxisAngle(&rotation, &rotationAxis, csFixedDegToRad(angle));
-    csQuatNormalize(&rotation, &rotation);
-    csMatRotationSet(&realMesh->rotMat, &rotation);
-}
 ecs_entity_t camera;
-void csMeshDraw(csMesh *mesh, csShader *shader)
+void csMeshDraw(ecs_iter_t *it)
 {
-    realMesh = (glMesh*)mesh;
-    static csFixed angle = csFixedFromInt(0);
-    updateRotation();
-    csMatPositionSet(&realMesh->transMat, &pos);
-
-    csMatScaleSet(&realMesh->scaleMat, &size);
-    csMatInit(&realMesh->modelTransform);
-
-    csMatMul(&realMesh->modelTransform, &realMesh->modelTransform, &realMesh->scaleMat);
-    csMatMul(&realMesh->modelTransform, &realMesh->modelTransform, &realMesh->rotMat);
-    csMatMul(&realMesh->modelTransform, &realMesh->modelTransform, &realMesh->transMat);
-
-
-    // Set up the projection matrix
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    const Projection *proj = ecs_get(csSceneRoot->world,camera,Projection);
-    glLoadMatrixx(proj->m.data);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    const ViewMatrix *view = ecs_get(csSceneRoot->world,camera,ViewMatrix);
-    glLoadMatrixx(view->m.data);
-    glMultMatrixx(realMesh->modelTransform.data);
-
-    // Enable client states
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glVertexPointer(3, GL_FIXED, 0, pyramid_vertices);
-    glColorPointer(4, GL_UNSIGNED_BYTE, 0, pyramid_colors);
-    glDrawElements(GL_TRIANGLES, sizeof(pyramid_indices) / sizeof(pyramid_indices[0]), GL_UNSIGNED_BYTE, pyramid_indices);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    GLenum glError = glGetError();
-    if (glError != GL_NO_ERROR)
-    {
-        printf("OpenGL Error : 0x%x\n", glError);
-    }
-}
-
-
-
-void csMeshCreatePrimitivePyramid(csMesh **output)
-{
-    realMesh = csMalloc(sizeof(glMesh));
-    *output = (csMesh*)realMesh;
     ecs_entities_t entities =  ecs_get_entities(csSceneRoot->world);
     for (int i = 0; i < entities.alive_count; i++) {
         ecs_entity_t id = entities.ids[i];
-        if (ecs_has(csSceneRoot->world,id,ViewMatrix)) {
+        if (ecs_has(csSceneRoot->world,id,csCamera)) {
             camera = id;
         }
     }
-    csMatInit(&realMesh->modelTransform);
-    csMatFillDiagonal(&realMesh->modelTransform,csFixedFromInt(1));
+    csMesh *mesh = ecs_field(it,csMesh,0);
+    csTransform *transform = ecs_field(it,csTransform,1);
+    for (int i = 0; i < it->count; i++) {
+        realMesh = mesh[i].backend;
 
-    csMatInit(&realMesh->transMat);
-    csMatFillDiagonal(&realMesh->transMat,csFixedFromInt(1));
-    csMatPositionSet(&realMesh->transMat,&pos);
+        // Set up the projection matrix
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        const csCamera *cam = ecs_get(csSceneRoot->world,camera,csCamera);
+        glLoadMatrixx(cam->projection.data);
 
-    csMatInit(&realMesh->scaleMat);
-    csMatFillDiagonal(&realMesh->scaleMat,csFixedFromInt(1));
-    csMatScaleSet(&realMesh->scaleMat,&size);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        const csTransform *trans = ecs_get(csSceneRoot->world,camera,csTransform);
+        glLoadMatrixx(trans->data);
+        glMultMatrixx(transform[i].data);
 
-    csMatInit(&realMesh->rotMat);
-    csMatFillDiagonal(&realMesh->rotMat,csFixedFromInt(1));
+        // Enable client states
+        glEnableClientState(GL_VERTEX_ARRAY);
+            glEnableClientState(GL_COLOR_ARRAY);
+                glVertexPointer(3, GL_FIXED, 0, realMesh->vertices);
+                glColorPointer(4, GL_UNSIGNED_BYTE, 0, realMesh->colors);
+                glDrawElements(GL_TRIANGLES, realMesh->indices_count, GL_UNSIGNED_BYTE, realMesh->indices);
+            glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        GLenum glError = glGetError();
+        if (glError != GL_NO_ERROR)
+        {
+            printf("OpenGL Error : 0x%x\n", glError);
+        }
+    }
+}
 
+void *csMeshCreatePrimitivePyramid(void)
+{
+    realMesh = csMalloc(sizeof(glMesh));
     realMesh->vertices = pyramid_vertices;
     realMesh->indices = pyramid_indices;
+    realMesh->colors = pyramid_colors;
     realMesh->indices_count = sizeof(pyramid_indices) / sizeof(GLubyte);
     realMesh->vertices_count = sizeof(pyramid_vertices) / sizeof(GLfixed);
+    realMesh->colors_count = sizeof(pyramid_colors) / sizeof(GLubyte);
     GLenum glError = glGetError();
     if (glError != GL_NO_ERROR)
     {
          printf("OpenGL Error : 0x%x\n",glError);
     }
+    return realMesh;
 }
 
-void csMeshFree(csMesh *mesh)
+void csMeshFree(void *ptr,int count, const ecs_type_info_t *info)
 {
-    csFree(mesh,sizeof(glMesh));
+    csMesh *mesh = ptr;
+    for (int i = 0; i < count; i++) {
+        csFree(mesh[i].backend,sizeof(glMesh));
+    }
 }
+

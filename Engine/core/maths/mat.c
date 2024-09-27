@@ -9,10 +9,10 @@ void csMatToFloat(csFMat4 *dest, const csMat4 *mat, int print)
     }
 }
 
-void csMatPerspective(csFixed fovy, csFixed aspect, csFixed zNear, csFixed zFar, csFixed *matrix) {
+void csMatPerspective(csFixed fovy, csFixed aspect, csFixed zNear, csFixed zFar, csMat4 *projection) {
     csFixed f = csFixedDiv(csFixedFromFloat(1.0f), csFixedTan(csFixedDiv(fovy, csFixedFromFloat(2.0f))));
     csFixed rangeInv = csFixedDiv(csFixedFromFloat(1.0f), csFixedSub(zNear, zFar));
-
+    csFixed *matrix = projection->data;
     matrix[0] = csFixedDiv(f, aspect);
     matrix[1] = 0;
     matrix[2] = 0;
