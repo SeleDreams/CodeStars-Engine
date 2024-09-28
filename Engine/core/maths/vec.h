@@ -1,6 +1,8 @@
 #ifndef CODESTARS_ENGINE_CORE_MATHS_VEC_H
 #define CODESTARS_ENGINE_CORE_MATHS_VEC_H
-#include "maths.h"
+#include "defines.h"
+#include "arithmetic.h"
+#include <fixvector2d.h>
 typedef v3d csVec3;
 typedef struct csVec4 {
     csFixed x;
@@ -10,6 +12,11 @@ typedef struct csVec4 {
 } csVec4;
 typedef v2d csVec2;
 
+static const csVec3 CSVEC3_ZERO = {0,0,0};
+static const csVec3 CSVEC3_ONE = {csFixedFromInt(1),csFixedFromInt(1),csFixedFromInt(1)};
+static const csVec3 CSVEC3_UP = {csFixedFromInt(0),csFixedFromInt(1),csFixedFromInt(0)};
+static const csVec3 CSVEC3_RIGHT = {csFixedFromInt(1),csFixedFromInt(0),csFixedFromInt(0)};
+static const csVec3 CSVEC3_FORWARD = {csFixedFromInt(0),csFixedFromInt(0),csFixedFromInt(1)};
 static inline void csVec3Add(csVec3 *dest, const csVec3 *a,const csVec3 *b) {v3d_add(dest,a,b);}
 static inline void csVec3Sub(csVec3 *dest, const csVec3 *a, const csVec3 *b) {v3d_sub(dest,a,b);}
 static inline void csVec3MulS(csVec3 *dest,const csVec3 *a,csFixed b){v3d_mul_s(dest,a,b);}
@@ -19,5 +26,6 @@ static inline csFixed csVec3Length(const csVec3 *a) {return v3d_norm(a);}
 static inline void csVec3Normalize(csVec3 *dest,const csVec3 *a){v3d_normalize(dest,a);}
 static inline csFixed csVec3Dot(const csVec3 *a,const csVec3 *b){ return v3d_dot(a,b);}
 static inline void csVec3Cross(csVec3 *dest, const csVec3 *a, const csVec3 *b){v3d_cross(dest,a,b);}
-
+// Function to multiply a 3D vector by a 4x4 matrix
+void csVec3MulMat(csVec3* vec, const csMat4* mat);
 #endif

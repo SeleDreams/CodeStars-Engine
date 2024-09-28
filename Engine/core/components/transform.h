@@ -6,7 +6,7 @@
 #define TRANSFORM_H
 #include "../maths/mat.h"
 #include <flecs.h>
-typedef csMat4 csTransform;
+typedef struct {csMat4 m;} csTransform;
 extern ECS_COMPONENT_DECLARE(csTransform);
 void csTransformModuleImport(ecs_world_t *ecs);
 #endif //TRANSFORM_H

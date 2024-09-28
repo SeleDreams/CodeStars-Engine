@@ -6,6 +6,7 @@
 #include <core/graphics/Mesh.h>
 #include <core/maths/includes.h>
 #include <core/components/transform.h>
+
 static csVec3 pos = {
     .x = 0,
     .y = 0,
@@ -28,6 +29,12 @@ csFixed randomFixed(void) {
     return csFixedDiv(csFixedFromInt(rand() % 2001 - 1000), csFixedFromInt(1000));
 }
 
+typedef struct {
+    csQuat rotation;
+    csFixed angle;
+    csVec3 rotationAxis;
+} MeshRotationState;
+
 void generateRandomAxis(csVec3* axis) {
     axis->x = randomFixed();
     axis->y = randomFixed();
@@ -36,26 +43,34 @@ void generateRandomAxis(csVec3* axis) {
     csVec3Normalize(axis, axis);
 }
 
-void updateRotation(csMat4 *modelTransform) {
-    static csQuat rotation;
-    static csFixed angle;
-    angle = csFixedAdd(angle, csFixedFromInt(5));
-    int angleInt = csFixedToInt(angle);
+void updateRotation(csMat4 *modelTransform, MeshRotationState *state) {
+    state->angle = csFixedAdd(state->angle, csFixedFromInt(5));
+    int angleInt = csFixedToInt(state->angle);
     if (angleInt > 359) {
-        angle = csFixedFromInt(1);
-        generateRandomAxis(&rotationAxis);
+        state->angle = csFixedFromInt(1);
+        generateRandomAxis(&state->rotationAxis);
     }
-    csQuatFromAxisAngle(&rotation, &rotationAxis, csFixedDegToRad(angle));
-    csQuatNormalize(&rotation, &rotation);
-    csMatRotate(modelTransform, &rotation);
+    csQuatFromAxisAngle(&state->rotation, &state->rotationAxis, csFixedDegToRad(csFixedFromInt(5)));
+    csQuatNormalize(&state->rotation, &state->rotation);
+    csMatRotate(modelTransform, &state->rotation);
 }
 
 void csMeshRotatorSystem(ecs_iter_t *it) {
-    csTransform *transform = ecs_field(it,csTransform,1);
-    for (int i = 0; i < it->count;i++) {
-        csMatInit(&transform[i]);
-        csMatScale(&transform[i],&size);
-        updateRotation(&transform[i]);
-        csMatTranslate(&transform[i],&pos);
+    csTransform *transform = ecs_field(it, csTransform, 1);
+    static MeshRotationState *rotationStates = NULL;
+
+    if (rotationStates == NULL) {
+        rotationStates = malloc(it->count * sizeof(MeshRotationState));
+        for (int i = 0; i < it->count; i++) {
+            rotationStates[i].angle = csFixedFromInt(0);
+            generateRandomAxis(&rotationStates[i].rotationAxis);
+        }
+    }
+
+    for (int i = 0; i < it->count; i++) {
+        csMatScale(&transform[i].m, &size);
+        updateRotation(&transform[i].m, &rotationStates[i]);
+        csMatTranslate(&transform[i].m, &pos);
     }
 }
+

@@ -21,10 +21,7 @@ int main(void)
     csScene *scene = csMalloc(sizeof(csScene));
     csSceneRoot = scene;
     csSceneInit(scene);
-    void *pyramid = csMeshCreatePrimitivePyramid();
-
-    // Create a system for Position, Velocity.
-    ecs_system(scene->world, {
+   ecs_system(scene->world, {
         .entity = ecs_entity(scene->world, {
             .name = "csMeshRotator",
             .add = ecs_ids( ecs_dependson(EcsOnUpdate) )
@@ -35,15 +32,22 @@ int main(void)
         },
         .callback = csMeshRotatorSystem
     });
+    ecs_entity_desc_t entitydesc;
+    memset(&entitydesc,0,sizeof(ecs_entity_desc_t));
+    csMesh *mesh = csMalloc(sizeof(csMesh));
+    csMeshCreatePrimitivePyramid(mesh);
 
-    ecs_entity_t pyramid_entity = ecs_set_name(scene->world, 0, "Pyramid");
-    ecs_set(scene->world,pyramid_entity,csMesh,{pyramid});
-    ecs_set(scene->world,pyramid_entity,csTransform,{
-    .rows = 4,
-    .columns = 4,
-    .errors = 0,
-    .data = {0}
-});
+    for (int i = 0; i < 180; ++i) {
+        csVec3 pos = {csFixedFromInt(rand() % 41-20), csFixedFromInt(rand()  % 41-20), csFixedFromInt(rand() %  41-20)};
+        csTransform transform;
+        csMatInit(&transform.m);
+        csMatTranslate(&transform.m, &pos);
+        ecs_entity_t pyramid_entity = ecs_entity_init(scene->world,&entitydesc);
+
+        ecs_set_ptr(scene->world, pyramid_entity, csMesh, mesh);
+        ecs_set_ptr(scene->world, pyramid_entity, csTransform, &transform);
+    }
+    csFree(mesh,sizeof(csMesh));
     csSceneStart(scene);
 
     const int framerate = 60;
@@ -54,15 +58,13 @@ int main(void)
         delta = csGraphicsWaitForNextFrame(framerate);
         csSceneUpdate(scene,delta);
         csGraphicsFrameEnd(context);
-
         int fps = csFixedToInt(csFixedDiv(csFixedFromInt(1), delta));
         printf("fps : %i\n",fps);
     }
     csSceneDestroy(scene);
     csGraphicsContextDestroy(context);
-    if (csAllocatedData() > 0) {
+    if (csAllocatedData() != 0) {
         printf("Exited with %llu bytes of leaked data !\n", csAllocatedData());
     }
-    while (getchar() != '\n'){}
     return 0;
 }

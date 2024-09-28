@@ -1,11 +1,22 @@
 #include "mat.h"
-#include <stdio.h>
+#include "arithmetic.h"
+
+csMat4 cs_matrix_cache[3];
+csQuat cs_quat_cache[3];
+csVec3 cs_vec_cache[3];
 
 void csMatToFloat(csFMat4 *dest, const csMat4 *mat, int print)
 {
     for (int i = 0; i < 16;i++)
     {
             (*dest)[i] = csFixedToFloat(mat->data[i]);
+    }
+}
+
+void csMatTo2012(csMat4_2012 *dest, csMat4 *mat) {
+    for (int i = 0; i < 16;i++)
+    {
+        (*dest)[i] = mat->data[i] >> 4;
     }
 }
 

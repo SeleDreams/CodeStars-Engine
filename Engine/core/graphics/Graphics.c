@@ -60,9 +60,9 @@ int csGraphicsUpdate(csGraphicsContext *context)
 csFixed csGraphicsWaitForNextFrame(int framerate)
 {
     static clock_t last_frame_ticks = 0;
-    static clock_t current_frame_ticks = 0;
-    static csFixed delta;
-    static int clk;
+    clock_t current_frame_ticks = 0;
+    csFixed delta;
+    int clk;
 
     delta = csFixedFromFloat(0.0);
 

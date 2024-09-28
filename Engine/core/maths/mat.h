@@ -1,32 +1,30 @@
 #ifndef CODESTARS_ENGINE_CORE_MATHS_MAT_H
 #define CODESTARS_ENGINE_CORE_MATHS_MAT_H
 #include <fixmatrix.h>
-
-#include "maths.h"
 #include "vec.h"
 #include "quat.h"
 
+extern csMat4 cs_matrix_cache[3];
+extern csQuat cs_quat_cache[3];
+extern csVec3 cs_vec_cache[3];
 
 inline void csMatFill(csMat4 *dest, const csFixed value) {
     mf16_fill(dest, value);
 }
 
-
-static void csMatFillDiagonal(csMat4 *dest, const csFixed value) { mf16_fill_diagonal(dest, value); }
-static void csMatInit(csMat4 *dest) {
+inline void csMatFillDiagonal(csMat4 *dest, const csFixed value) { mf16_fill_diagonal(dest, value); }
+inline void csMatInit(csMat4 *dest) {
     mf16_initialize(dest, 4, 4);
     csMatFillDiagonal(dest,csFixedFromInt(1));
 }
 
-inline void csMatSet(csMat4 *a, int row, int column, int value) {
-    a->data[column * a->rows + row] = value;
-}
+
 
 inline int csMatGet(const csMat4 *a, int row, int column) {
     return a->data[column * a->rows + row];
 }
 
-static void csMatMul(csMat4 *dest, const csMat4 *a, const csMat4 *b) {
+inline void csMatMul(csMat4 *dest, const csMat4 *a, const csMat4 *b) {
     mf16_mul(dest, a, b);
 }
 
@@ -36,18 +34,19 @@ inline void csMatAdd(csMat4 *dest, const csMat4 *a, const csMat4 *b) { mf16_add(
 inline void csMatSub(csMat4 *dest, const csMat4 *a, const csMat4 *b) { mf16_sub(dest, a, b); }
 inline void csMatTranspose(csMat4 *dest, const csMat4 *mat) { mf16_transpose(dest, mat); }
 inline void csMatMulS(csMat4 *dest, const csMat4 *mat, const csFixed scalar) { mf16_mul_s(dest, mat, scalar); }
-
-static void csMatPositionSet(csMat4 *dest, const csVec3 *pos) {
+inline void csMatSet(csMat4 *a, int row, int column, int value) {
+    a->data[column * a->rows + row] = value;
+}
+inline void csMatPositionSet(csMat4 *dest, const csVec3 *pos) {
     csMatSet(dest, 0, 3, pos->x);
     csMatSet(dest, 1, 3, pos->y);
     csMatSet(dest, 2, 3, pos->z);
 }
 
-static void csMatTranslate(csMat4 *dest, const csVec3 *pos) {
-    static csMat4 translation;
-    csMatInit(&translation);
-    csMatPositionSet(&translation,pos);
-    csMatMul(dest,dest,&translation);
+inline void csMatTranslate(csMat4 *dest, const csVec3 *pos) {
+    csMatInit(&cs_matrix_cache[0]);
+    csMatPositionSet(&cs_matrix_cache[0],pos);
+    csMatMul(dest,dest,&cs_matrix_cache[0]);
 }
 
 inline void csMatGetPosition(csVec3 *dest, csMat4 *mat) {
@@ -56,28 +55,31 @@ inline void csMatGetPosition(csVec3 *dest, csMat4 *mat) {
     dest->z = csMatGet(mat, 2, 3);
 }
 
-static void csMatScaleSet(csMat4 *dest, const csVec3 *scale) {
+inline void csMatScaleSet(csMat4 *dest, const csVec3 *scale) {
     csMatSet(dest, 0, 0, scale->x);
     csMatSet(dest, 1, 1, scale->y);
     csMatSet(dest, 2, 2, scale->z);
 }
 
-static void csMatScale(csMat4 *dest, const csVec3 *p_scale) {
-    static csMat4 scale;
-    csMatInit(&scale);
-    csMatScaleSet(&scale,p_scale);
-    csMatMul(dest,dest,&scale);
+inline void csMatScale(csMat4 *dest, const csVec3 *p_scale) {
+    csMatInit(&cs_matrix_cache[0]);
+    csMatScaleSet(&cs_matrix_cache[0],p_scale);
+    csMatMul(dest,dest,&cs_matrix_cache[0]);
 }
 
-static void csMatRotationSet(csMat4 *dest, const csQuat *rot) {
+inline void csMatRotationSet(csMat4 *dest, const csQuat *rot) {
     csQuatToMat(rot, dest);
 }
 
-static void csMatRotate(csMat4 *dest, const csQuat *p_rot) {
-    static csMat4 rot;
-    csMatInit(&rot);
-    csMatRotationSet(&rot,p_rot);
-    csMatMul(dest,dest,&rot);
+inline void csMatRotate(csMat4 *dest, const csQuat *p_rot) {
+    csMatGetPosition(&cs_vec_cache[0],dest);
+
+    csMatInit(&cs_matrix_cache[0]);
+    csMatRotationSet(&cs_matrix_cache[0],p_rot);
+
+    csMatMul(dest,dest,&cs_matrix_cache[0]);
+
+    csMatPositionSet(dest,&cs_vec_cache[0]);
 }
 
 
