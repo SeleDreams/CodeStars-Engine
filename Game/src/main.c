@@ -4,15 +4,19 @@
 #include <scene.h>
 #include <time.h>
 #include "MeshRotatorSystem.h"
-#include <platform-specifics/graphics/GL/GLGraphics.h>
+#include "platform_init.h"
 #include <core/components/transform.h>
+
 csScene *csSceneRoot;
 static csFixed delta;
-int main(void)
+
+int main(int argc, char **argv)
 {
+    (void)argc;
+    (void)argv;
     initMemoryPool(&csMemPoolAllocatorGlobal);
-    csGLGraphicsInit();
-    csGLGraphicsContext *context = NULL;
+    initialize_engine();
+    csGraphicsContext *context = NULL;
     if (csGraphicsContextCreate(&context, 1280, 720, "New Window"))
     {
         printf("An error occurred while initializing the graphics context\n");
@@ -63,8 +67,8 @@ int main(void)
     }
     csSceneDestroy(scene);
     csGraphicsContextDestroy(context);
-    if (csAllocatedData() != 0) {
-        printf("Exited with %llu bytes of leaked data !\n", csAllocatedData());
-    }
+    /*if (csAllocatedData() != 0) {
+        printf("Exited with %lu bytes of leaked data !\n", csAllocatedData());
+    }*/
     return 0;
 }

@@ -4,7 +4,7 @@
 #include "camera.h"
 
 #include <stdio.h>
-#include <gles/gl.h>
+
 
 #include "../components/transform.h"
 #include "../memory/pool_allocator.h"
@@ -12,9 +12,15 @@
 
 ECS_COMPONENT_DECLARE(csCamera);
 
-GLint m_viewport[4];
+unsigned int m_viewport[4];
 void csCameraModuleImport(ecs_world_t *ecs) {
+#ifdef USE_GL
+#include <gles/gl.h>
     glGetIntegerv( GL_VIEWPORT, m_viewport );
+#else
+    m_viewport[2] = 256;
+    m_viewport[3] = 192;
+#endif
     ECS_MODULE(ecs,csCameraModule);
 
     ECS_COMPONENT_DEFINE(ecs,csCamera);

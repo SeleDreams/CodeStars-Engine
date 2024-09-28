@@ -1,4 +1,4 @@
-if (CMAKE_SYSTEM_NAME STREQUAL "NintendoDS")
+if (NintendoDS)
     message(STATUS "Using platform NintendoDS")
     unset(USE_GL)
     unset(USE_SDL)

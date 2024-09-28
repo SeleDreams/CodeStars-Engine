@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdint.h>
 #include "pool_allocator.h"
 MemoryPool csMemPoolAllocatorGlobal;
 size_t csMemPoolAllocatorAllocatedData;

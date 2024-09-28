@@ -1,6 +1,7 @@
 #ifndef CODESTARS_CORE_MEMORY_POOL_ALLOCATOR_H
 #define CODESTARS_CORE_MEMORY_POOL_ALLOCATOR_H
 #include <stdlib.h>
+#include <stdint.h>
 #include "memory_chunk.h"
 
 typedef struct csMemPoolAllocator {
@@ -33,5 +34,5 @@ static inline void *csMalloc(size_t size) {
 static inline void csFree(void *ptr,size_t size) {
     csMemPoolAllocatorGlobal.allocated_data -= size; pool_free(&csMemPoolAllocatorGlobal,ptr);
 }
-static inline size_t csAllocatedData(void) {return csMemPoolAllocatorGlobal.allocated_data;}
+static inline uint32_t csAllocatedData(void) {return csMemPoolAllocatorGlobal.allocated_data;}
 #endif

@@ -12,17 +12,18 @@ add_library(gl-graphics
         SDLFunctions.c
 )
 #set_target_properties(gl-graphics PROPERTIES LANGUAGE CXX)
-target_include_directories(gl-graphics PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS})
+target_include_directories(gl-graphics PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS} ${INCLUDE_DIRS})
 
-target_link_libraries(gl-graphics core-graphics core-maths SDL2 ${PROJECT_NAME}_libs)
 #[[if (USE_GLEW)
     target_include_directories(gl-graphics PUBLIC ${GLEW_INCLUDE_DIRS})
     target_link_libraries(gl-graphics OpenGL::GL GLEW::glew_s)
 else ()
     target_link_libraries(gl-graphics GLESv2 EGL)
 endif ()]]
-target_link_libraries(${PLATFORM_SPECIFICS}_graphics INTERFACE gl-graphics)
 target_link_libraries(gl-graphics GLESv2 EGL)
+target_link_libraries(${PLATFORM_SPECIFICS}_graphics INTERFACE SDL2 ${PROJECT_NAME}_core gl-graphics)
+
+target_link_libraries(core-graphics gl-graphics)
 #[[
 find_program(GLSLC_COMPILER glslc)
 add_custom_command(

@@ -15,7 +15,7 @@ typedef struct csMesh {
 
 extern ECS_COMPONENT_DECLARE(csMesh);
 void csMeshCreatePrimitivePyramid(csMesh *mesh);
-void csMeshFree(void *ptr,int unknown, const struct ecs_type_info_t *info);
+void csMeshFree(void *ptr,int32_t unknown, const struct ecs_type_info_t *info);
 void csMeshDraw(ecs_iter_t *it);
 void csMeshModuleImport(ecs_world_t *ecs);
 #endif
