@@ -61,10 +61,8 @@ csFixed csGraphicsWaitForNextFrame(int framerate)
 {
     static clock_t last_frame_ticks = 0;
     clock_t current_frame_ticks = 0;
-    csFixed delta;
+    csFixed delta = csFixedFromFloat(0.0);
     int clk;
-
-    delta = csFixedFromFloat(0.0);
 
     if (last_frame_ticks == 0)
     {

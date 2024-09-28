@@ -1,31 +1,33 @@
 # Create an interface library
 add_library(${PROJECT_NAME}_libs INTERFACE)
-
 # Add subdirectories
 add_subdirectory(libfixmatrix)
-add_subdirectory(flecs)
+
 
 # Set options
 option(FLECS_SHARED "" OFF)
+set(FLECS_SHARED OFF)
 
 # Conditional settings for NintendoDS
 if (NintendoDS)
-    add_compile_definitions(
-            FLECS_CUSTOM_BUILD
-            FLECS_MODULE
-            FLECS_OS_API_IMPL
-            FLECS_SYSTEM
-    )
-    option(FLECS_PIC "" ON)
     add_definitions(
+            -DFLECS_CUSTOM_BUILD
+            -DFLECS_MODULE
+            -DFLECS_PIPELINE
+            -DFLECS_SYSTEM
+            -DFLECS_NO_OS_API_IMPL
+            -UFLECS_OS_API_IMPL
             -U_WIN32
             -U_MSC_VER
             -DECS_TARGET_POSIX
             -DECS_TARGET_LINUX
     )
-    set_arm9_compile_options(flecs_static)
+    option(FLECS_PIC "" ON)
 endif()
-
+add_subdirectory(flecs)
+if (NintendoDS)
+set_arm9_compile_options(flecs_static)
+endif ()
 # Link libraries
 target_link_libraries(${PROJECT_NAME}_libs INTERFACE flecs_static)
 

@@ -1,9 +1,9 @@
 #include "platform_init.h"
-#include <nds.h>
+#include <platform-specifics/graphics/NDS/NDSGraphicsFunctions.h>
 
 int initialize_engine(void) {
 
-    return 0;
+    return csNDSGraphicsInit();
 }
 
 void terminate_engine(void) {

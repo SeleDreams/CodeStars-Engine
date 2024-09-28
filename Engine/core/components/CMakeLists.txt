@@ -1,3 +1,6 @@
 add_library(core-components transform.c)
 target_include_directories(core-components PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${INCLUDE_DIRS})
+if (NintendoDS)
+    set_arm9_compile_options(core-components)
+endif ()
 target_link_libraries(${PROJECT_NAME}_core INTERFACE core-components)
