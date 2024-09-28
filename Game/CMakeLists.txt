@@ -6,7 +6,7 @@ if (USE_GL)
     add_executable(${PROJECT_NAME} ${SRC_FILES})
 elseif (NintendoDS)
     set(SRC_FILES ${SRC_FILES} src/ds_init.c )
-    add_arm9_executable(${PROJECT_NAME} src/main.c src/MeshRotatorSystem.c src/ds_init.c)
+    add_arm9_executable(${PROJECT_NAME} ${SRC_FILES})
     create_nds(${PROJECT_NAME} ${PROJECT_NAME})
 endif()
 
