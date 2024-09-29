@@ -7,20 +7,21 @@ add_subdirectory(libfixmatrix)
 # Set options
 option(FLECS_SHARED "" OFF)
 set(FLECS_SHARED OFF)
-
+add_definitions(
+        -DFLECS_NO_OS_API_IMPL
+)
 # Conditional settings for NintendoDS
 if (NintendoDS)
     add_definitions(
-            -DFLECS_CUSTOM_BUILD
-            -DFLECS_MODULE
-            -DFLECS_PIPELINE
-            -DFLECS_SYSTEM
-            -DFLECS_NO_OS_API_IMPL
-            -UFLECS_OS_API_IMPL
             -U_WIN32
             -U_MSC_VER
             -DECS_TARGET_POSIX
             -DECS_TARGET_LINUX
+            -DFLECS_NO_HTTP
+            -DFLECS_NO_REST
+            -DFLECS_NO_LOG
+            -DFLECS_USE_OS_ALLOC
+            -DFLECS_LOW_FOOTPRINT
     )
     option(FLECS_PIC "" ON)
 endif()

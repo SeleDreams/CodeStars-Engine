@@ -13,7 +13,7 @@ void csMatToFloat(csFMat4 *dest, const csMat4 *mat, int print)
     }
 }
 
-void csMatTo2012(csMat4_2012 *dest, csMat4 *mat) {
+void csMatTo2012(csMat4_2012 *dest, const csMat4 *mat) {
     for (int i = 0; i < 16;i++)
     {
         (*dest)[i] = mat->data[i] >> 4;

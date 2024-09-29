@@ -66,5 +66,5 @@ void csMeshDraw(ecs_iter_t *it)
 
 void csMeshFree(void *ptr,int count, const ecs_type_info_t *info)
 {
-    csFree(ptr,sizeof(csMesh));
+    //csFree(ptr,sizeof(csMesh));
 }

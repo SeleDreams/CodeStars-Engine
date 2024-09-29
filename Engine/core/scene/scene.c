@@ -2,17 +2,20 @@
 // Created by SeleDreams on 25/09/2024.
 //
 #include "scene.h"
+
 #include "camera.h"
 #include "../graphics/Mesh.h"
 #include "../components/transform.h"
 
 void csSceneInit(csScene *p_scene) {
+
     p_scene->world = ecs_init();
-    ecs_measure_frame_time(p_scene->world,false);
+    printf("scene initialized\n");
+  // ecs_measure_frame_time(p_scene->world,false);
     ECS_IMPORT(p_scene->world,csTransformModule);
     ECS_IMPORT(p_scene->world,csCameraModule);
     ECS_IMPORT(p_scene->world,csMeshModule);
-    csCameraCreate(p_scene->world);
+    p_scene->camera = csCameraCreate(p_scene->world);
 }
 
 void csSceneDestroy(csScene *p_scene) {
@@ -21,7 +24,7 @@ void csSceneDestroy(csScene *p_scene) {
 }
 
 void csSceneUpdate(csScene *p_scene,csFixed delta) {
-    printf("Delta time is : %f\n",csFixedToFloat(delta));
+    //printf("Delta time is : %f\n",csFixedToFloat(delta));
     ecs_progress(p_scene->world, delta);
 }
 

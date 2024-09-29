@@ -5,8 +5,8 @@
 #include "../memory/includes.h"
 ECS_COMPONENT_DECLARE(csMesh);
 
-// Vertices of the pyramid (fixed-point format)
-const csFixed pyramid_vertices[] = {
+// Vertices of the cube (fixed-point format)
+const csFixed cube_vertices[] = {
     csFixedFromFloat(-1.0), csFixedFromFloat(1.0), csFixedFromFloat(-1.0),  // Top front left
     csFixedFromFloat(1.0), csFixedFromFloat(1.0), csFixedFromFloat(-1.0),   // Top front right
     csFixedFromFloat(1.0), csFixedFromFloat(-1.0), csFixedFromFloat(-1.0),  // Bottom front right
@@ -18,7 +18,7 @@ const csFixed pyramid_vertices[] = {
 };
 
 // Indices for the cube faces
-const unsigned char pyramid_indices[] = {
+const unsigned char cube_indices[] = {
     0, 1, 2, 2, 3, 0, // Front face
     4, 5, 6, 6, 7, 4, // Back face
     0, 1, 5, 5, 4, 0, // Top face
@@ -28,7 +28,7 @@ const unsigned char pyramid_indices[] = {
 };
 
 // Colors for each vertex
-const unsigned char pyramid_colors[] = {
+const unsigned char cube_colors[] = {
     255, 0, 0, 255,   // Red for top front left
     0, 255, 0, 255,   // Green for top front right
     0, 0, 255, 255,   // Blue for bottom front right
@@ -39,14 +39,14 @@ const unsigned char pyramid_colors[] = {
     128, 0, 128, 255  // Purple for bottom back left
 };
 
-void csMeshCreatePrimitivePyramid(csMesh *mesh)
+void csMeshCreatePrimitiveCube(csMesh *mesh)
 {
-    mesh->vertices = pyramid_vertices;
-    mesh->indices = pyramid_indices;
-    mesh->colors = pyramid_colors;
-    mesh->indices_count = sizeof(pyramid_indices) / sizeof(char);
-    mesh->vertices_count = sizeof(pyramid_vertices) / sizeof(csFixed);
-    mesh->colors_count = sizeof(pyramid_colors) / sizeof(char);
+    mesh->vertices = cube_vertices;
+    mesh->indices = cube_indices;
+    mesh->colors = cube_colors;
+    mesh->indices_count = sizeof(cube_indices) / sizeof(char);
+    mesh->vertices_count = sizeof(cube_vertices) / sizeof(csFixed);
+    mesh->colors_count = sizeof(cube_colors) / sizeof(char);
 }
 
 void csMeshModuleImport(ecs_world_t *ecs) {

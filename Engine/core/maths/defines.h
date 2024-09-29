@@ -14,6 +14,6 @@ typedef int csMat4_2012[16];
 #define csFixedFromInt(value) ((csFixed)F16(value))
 #define csFixedFromFloat(value) ((csFixed)F16(value))
 
-#define csFixedToFloat(value) ((float)(value >> 16))
-#define csFixedToInt(value) ((int)(value >> 16))
+#define csFixedToFloat(value) ((float)(fix16_to_float(value)))
+#define csFixedToInt(value) ((int)(fix16_to_int(value)))
 #endif

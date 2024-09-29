@@ -2,9 +2,10 @@
 #include <time.h>
 #include <assert.h>
 #include <stdio.h>
-
+#include "../os_functions.h"
 #include "../maths/includes.h"
 csGraphicsContextImpl backend;
+
 
 void csGraphicsInit(const csGraphicsContextImpl *impl) {
     backend = *impl;
@@ -59,27 +60,30 @@ int csGraphicsUpdate(csGraphicsContext *context)
 
 csFixed csGraphicsWaitForNextFrame(int framerate)
 {
+#if __NDS__
+    return csFixedFromFloat(0.0167f);
+#else
     static clock_t last_frame_ticks = 0;
     clock_t current_frame_ticks = 0;
     csFixed delta = csFixedFromFloat(0.0);
-    int clk;
-
+    clock_t clk;
     if (last_frame_ticks == 0)
     {
         clk = clock();
         last_frame_ticks = clk;
     }
     const csFixed targetDelta = csFixedDiv(csFixedFromInt(CLOCKS_PER_SEC), csFixedFromInt(framerate));
-
     while (delta < targetDelta)
     {
-        clk = clock();
+        clk =  clock();
+
         current_frame_ticks = clk;
-        clock_t result = current_frame_ticks - last_frame_ticks;
+        uint32_t result = current_frame_ticks - last_frame_ticks;
 
         delta = csFixedFromInt(result);
     }
     last_frame_ticks = current_frame_ticks;
     return csFixedDiv(delta, csFixedFromInt(CLOCKS_PER_SEC));
+#endif
 }
 

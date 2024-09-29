@@ -4,7 +4,7 @@ function(set_arm9_compile_options name)
     set(ARCH_FLAGS -march=armv5te -mtune=arm946e-s)
     target_compile_definitions(${name} PRIVATE __NDS__ ARM9)
     target_compile_options(${name} PRIVATE ${ARCH_FLAGS} -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fomit-frame-pointer)
-
+    set_property(TARGET ${name} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     target_compile_options(${name} PRIVATE
             $<$<COMPILE_LANGUAGE:ASM>:-x assembler-with-cpp>
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions -fno-rtti>

@@ -18,8 +18,8 @@ void csCameraModuleImport(ecs_world_t *ecs) {
 #include <gles/gl.h>
     glGetIntegerv( GL_VIEWPORT, m_viewport );
 #else
-    m_viewport[2] = 256;
-    m_viewport[3] = 192;
+    m_viewport[2] = 255;
+    m_viewport[3] = 191;
 #endif
     ECS_MODULE(ecs,csCameraModule);
 
@@ -54,7 +54,7 @@ void csCameraStart(ecs_iter_t *it) {
     static const csVec3 csCameraPos = {
         .x = csFixedFromFloat(0.0),
         .y = csFixedFromFloat(0.0),
-        .z = csFixedFromFloat(-15.0)
+        .z = csFixedFromFloat(-7.0)
     };
     for (int i = 0; i < it->count; i++) {
         csMatInit(&camera[i].projection);
@@ -111,13 +111,14 @@ void csCameraUpdate(ecs_iter_t *it) {
         csMatGetPosition(&final,&transform[i].m);
         //if (abs(final.z) > csFixedFromInt(30)) {
             csQuat rot;
-            csQuatFromAxisAngle(&rot,&up,csFixedMul(it->delta_time,csFixedDegToRad(csFixedFromInt(26))));
+            csQuatFromAxisAngle(&rot,&up,csFixedMul(it->delta_time,csFixedDegToRad(csFixedFromInt(50))));
             csMatRotate(&transform[i].m,&rot);
         //}
     }
 }
 
 ecs_entity_t csCameraCreate(ecs_world_t *ecs) {
+    printf("Creating camera");
     ecs_entity_t cam = ecs_set_name(ecs,0,"camera");
     ecs_set(ecs,cam,csCamera,{0});
     ecs_set(ecs,cam,csTransform,{0});

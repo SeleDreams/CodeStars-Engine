@@ -61,10 +61,10 @@ int csNDSGraphicsCreate(csGraphicsContext *context, unsigned int width, unsigned
     glEnable(GL_ANTIALIAS);
 
     // setup the rear plane
-    glClearColor(0,0,0,31); // BG must be opaque for AA to work
+    glClearColor(10,10,25,31); // BG must be opaque for AA to work
     glClearPolyID(63); // BG must have a unique polygon ID for AA to work
     glClearDepth(0x7FFF);
-
+    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
     // Set our view port to be the same size as the screen
     glViewport(0,0,255,191);
     return 0;
@@ -86,11 +86,13 @@ void csNDSGraphicsTerminate(csGraphicsContext *context)
 
 void csNDSGraphicsFrameStart(csGraphicsContext *context)
 {
+    //printf("frame start\n");
 
 }
 
 void csNDSGraphicsFrameEnd(csGraphicsContext *context)
 {
+
 }
 
 int csNDSGraphicsUpdate(csGraphicsContext *context)
@@ -100,8 +102,6 @@ int csNDSGraphicsUpdate(csGraphicsContext *context)
         printf("The graphics context provided to csGraphicsUpdate is null!\n");
         return 0;
     }
-    while(REG_DISPCAPCNT & DCAP_ENABLE){}
-
     scanKeys();
     int keys = keysDown();
     return !(keys & KEY_START);

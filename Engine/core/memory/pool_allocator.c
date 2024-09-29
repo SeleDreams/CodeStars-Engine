@@ -5,10 +5,10 @@ MemoryPool csMemPoolAllocatorGlobal;
 size_t csMemPoolAllocatorAllocatedData;
 
 void initMemoryPool(MemoryPool* pool) {
-    pool->freeList = (MemoryBlock*)pool->pool;
+    /*pool->freeList = (MemoryBlock*)pool->pool;
     pool->freeList->next = NULL;
     pool->freeList->size = POOL_SIZE - sizeof(MemoryBlock);
-    csMemPoolAllocatorAllocatedData = 0;
+    csMemPoolAllocatorAllocatedData = 0;*/
 }
 
 void* pool_malloc(MemoryPool* pool, size_t size) {

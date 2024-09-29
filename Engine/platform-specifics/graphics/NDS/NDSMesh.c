@@ -6,56 +6,38 @@
 
 #include "core/memory/pool_allocator.h"
 #include "core/components/transform.h"
+#include "core/scene/scene.h"
 
 void csMeshDraw(ecs_iter_t *it)
 {
-    ecs_query_t *q = ecs_query(it->world, {
-        .terms = {
-            { .id = ecs_id(csCamera) },
-            { .id = ecs_id(csTransform), .inout = EcsIn}
-        },
-    });
-    ecs_iter_t cameras = ecs_query_iter(it->world, q);
-    ecs_iter_next(&cameras);
-    csCamera *cam = ecs_field(&cameras, csCamera, 0);
-    csTransform *camTransform = ecs_field(&cameras, csTransform, 1);
+   // printf("csMeshDraw called ! \n");
+    m4x4 nds_mat;
+    const csCamera *cam = ecs_get(it->world,csSceneRoot->camera,csCamera);
+    const csTransform *camTransform = ecs_get(it->world,csSceneRoot->camera,csTransform);
     csMesh *mesh = ecs_field(it, csMesh, 0);
     csTransform *transform = ecs_field(it, csTransform, 1);
-    ecs_iter_fini(&cameras);
-    ecs_query_fini(q);
-    /*// Set up projection matrix once
     glMatrixMode(GL_PROJECTION);
-    glLoadMatrixx(cam->projection.data);
-
-    // Set up modelview matrix once
+    csMatTo2012(&nds_mat.m,&cam->projection);
+    glLoadMatrix4x4(&nds_mat);
     glMatrixMode(GL_MODELVIEW);
-
-
-    // Enable client states once
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-
     for (int i = 0; i < it->count;i++) {
         csMesh *realMesh = &mesh[i];
+        csMatTo2012(&nds_mat.m,&camTransform->m);
+        glLoadMatrix4x4(&nds_mat);
+        csMatTo2012(&nds_mat.m,&transform[i].m);
+        glMultMatrix4x4(&nds_mat);
+        glPushMatrix();
+        glBegin(GL_TRIANGLES);
+        for (int index = 0; index < realMesh->indices_count; index++) {
+            unsigned char indices = realMesh->indices[index];
+            glColor3b(realMesh->colors[indices * 3], realMesh->colors[indices * 3 + 1], realMesh->colors[indices * 3 + 2]);
+            glVertex3v16(realMesh->vertices[indices * 3] >> 4, realMesh->vertices[indices * 3 + 1] >> 4, realMesh->vertices[indices * 3 + 2] >> 4);
+        }
 
-        glLoadMatrixx(camTransform->m.data);
-        glMultMatrixx(transform[i].m.data);
-        // Set vertex and color pointers
-        glVertexPointer(3, GL_FIXED, 0, realMesh->vertices);
-        glColorPointer(4, GL_UNSIGNED_BYTE, 0, realMesh->colors);
-        // Draw the combined mesh
-        glDrawElements(GL_TRIANGLES, realMesh->indices_count, GL_UNSIGNED_BYTE, realMesh->indices);
+        glEnd();
+        glPopMatrix(1);
     }
-
-    // Disable client states once
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-
-
-    GLenum glError = glGetError();
-    if (glError != GL_NO_ERROR) {
-        printf("OpenGL Error : 0x%x\n", glError);
-    }*/
+    glFlush(0);
 }
 
 void csMeshFree(void *ptr,int32_t count, const ecs_type_info_t *info)

@@ -9,6 +9,7 @@
 #include <flecs.h>
 
 typedef struct csScene {
+    ecs_entity_t camera;
     ecs_world_t *world;
 } csScene;
 extern csScene *csSceneRoot;

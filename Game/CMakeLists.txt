@@ -8,6 +8,7 @@ elseif (NintendoDS)
     set(SRC_FILES ${SRC_FILES} src/ds_init.c )
     add_arm9_executable(${PROJECT_NAME} ${SRC_FILES})
     create_nds(${PROJECT_NAME} ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME} nds-graphics)
 endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)

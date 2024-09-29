@@ -9,7 +9,7 @@ typedef struct csMemPoolAllocator {
     csMemoryChunk *memoryChunk;
 } csMemPoolAllocator;
 
-#define POOL_SIZE 5192  // Adjust this size based on your needs
+#define POOL_SIZE 32  // Adjust this size based on your needs
 #define ALIGNMENT 8     // Adjust alignment as needed
 typedef struct MemoryBlock {
     struct MemoryBlock* next;
@@ -29,10 +29,13 @@ void* pool_malloc(MemoryPool* pool, size_t size);
 void pool_free(MemoryPool* pool, void* ptr);
 
 static inline void *csMalloc(size_t size) {
-    csMemPoolAllocatorGlobal.allocated_data += size; return pool_malloc(&csMemPoolAllocatorGlobal,size);
+    return malloc(size);
+   //csMemPoolAllocatorGlobal.allocated_data += size; return pool_malloc(&csMemPoolAllocatorGlobal,size);
 }
 static inline void csFree(void *ptr,size_t size) {
-    csMemPoolAllocatorGlobal.allocated_data -= size; pool_free(&csMemPoolAllocatorGlobal,ptr);
+    (void)size;
+    free(ptr);
+   // csMemPoolAllocatorGlobal.allocated_data -= size; pool_free(&csMemPoolAllocatorGlobal,ptr);
 }
-static inline uint32_t csAllocatedData(void) {return csMemPoolAllocatorGlobal.allocated_data;}
+static inline unsigned int csAllocatedData(void) {return csMemPoolAllocatorGlobal.allocated_data;}
 #endif

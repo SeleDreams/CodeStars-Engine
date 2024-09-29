@@ -5,6 +5,5 @@
 #include "NDSGraphics.h"
 typedef struct NDSMesh
 {
-
 } NDSMesh;
 #endif
