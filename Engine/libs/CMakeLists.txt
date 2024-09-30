@@ -17,11 +17,11 @@ if (NintendoDS)
             -U_MSC_VER
             -DECS_TARGET_POSIX
             -DECS_TARGET_LINUX
-            -DFLECS_NO_HTTP
-            -DFLECS_NO_REST
-            -DFLECS_NO_LOG
-            -DFLECS_USE_OS_ALLOC
+            -DFLECS_CUSTOM_BUILD
             -DFLECS_LOW_FOOTPRINT
+            -DFLECS_PIPELINE
+            -DFLECS_SYSTEM
+            -DFLECS_MODULE
     )
     option(FLECS_PIC "" ON)
 endif()

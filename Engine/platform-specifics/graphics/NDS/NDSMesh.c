@@ -8,37 +8,67 @@
 #include "core/components/transform.h"
 #include "core/scene/scene.h"
 
-void csMeshDraw(ecs_iter_t *it)
-{
-   // printf("csMeshDraw called ! \n");
-    m4x4 nds_mat;
-    const csCamera *cam = ecs_get(it->world,csSceneRoot->camera,csCamera);
-    const csTransform *camTransform = ecs_get(it->world,csSceneRoot->camera,csTransform);
+void setupProjectionMatrix(m4x4 *nds_mat,const csCamera *cam) {
+    csMatTo2012(&nds_mat->m, &cam->projection);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrix4x4(nds_mat);
+}
+
+void setupModelViewMatrix(m4x4 *nds_mat,csTransform *camTransform) {
+    csTransformUpdate(camTransform);
+    csMatTo2012(&nds_mat->m, &camTransform->transform);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrix4x4(nds_mat);
+}
+
+void applyTransformMatrix(m4x4 *nds_mat,csTransform *transform) {
+    csTransformUpdate(transform);
+    csMatTo2012(&nds_mat->m, &transform->transform);
+    glMultMatrix4x4(nds_mat);
+}
+
+void drawMesh(const csMesh *mesh) {
+    glBegin(GL_TRIANGLES);
+    unsigned int realIndex;
+    for (int index = 0; index < mesh->indices_count; index++) {
+        realIndex = mesh->indices[index] * 3;
+
+        glColor3b(
+            mesh->colors[realIndex],
+            mesh->colors[realIndex + 1],
+            mesh->colors[realIndex + 2]
+            );
+        glVertex3v16(
+            mesh->vertices[realIndex] >> 4,
+            mesh->vertices[realIndex + 1] >> 4,
+            mesh->vertices[realIndex + 2] >> 4
+            );
+    }
+
+    glEnd();
+}
+
+void csMeshDraw(ecs_iter_t *it) {
+    const csCamera *cam = ecs_get(it->world, csSceneRoot->camera, csCamera);
+    csTransform *camTransform = (csTransform*)ecs_get(it->world, csSceneRoot->camera, csTransform);
     csMesh *mesh = ecs_field(it, csMesh, 0);
     csTransform *transform = ecs_field(it, csTransform, 1);
-    glMatrixMode(GL_PROJECTION);
-    csMatTo2012(&nds_mat.m,&cam->projection);
-    glLoadMatrix4x4(&nds_mat);
-    glMatrixMode(GL_MODELVIEW);
-    for (int i = 0; i < it->count;i++) {
-        csMesh *realMesh = &mesh[i];
-        csMatTo2012(&nds_mat.m,&camTransform->m);
-        glLoadMatrix4x4(&nds_mat);
-        csMatTo2012(&nds_mat.m,&transform[i].m);
-        glMultMatrix4x4(&nds_mat);
-        glPushMatrix();
-        glBegin(GL_TRIANGLES);
-        for (int index = 0; index < realMesh->indices_count; index++) {
-            unsigned char indices = realMesh->indices[index];
-            glColor3b(realMesh->colors[indices * 3], realMesh->colors[indices * 3 + 1], realMesh->colors[indices * 3 + 2]);
-            glVertex3v16(realMesh->vertices[indices * 3] >> 4, realMesh->vertices[indices * 3 + 1] >> 4, realMesh->vertices[indices * 3 + 2] >> 4);
-        }
 
-        glEnd();
+    m4x4 nds_mat;
+
+    setupProjectionMatrix(&nds_mat,cam);
+    setupModelViewMatrix(&nds_mat,camTransform);
+
+    for (int i = 0; i < it->count; i++) {
+        glPushMatrix();
+        applyTransformMatrix(&nds_mat,&transform[i]);
+        drawMesh(&mesh[i]);
         glPopMatrix(1);
     }
+
     glFlush(0);
 }
+
 
 void csMeshFree(void *ptr,int32_t count, const ecs_type_info_t *info)
 {

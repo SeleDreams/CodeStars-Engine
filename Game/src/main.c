@@ -43,12 +43,12 @@ int main(int argc, char **argv)
     csMesh mesh;
     csMeshCreatePrimitiveCube(&mesh);
 
-    for (int i = 0; i < 30; i++) {
-        csVec3 pos = {csFixedFromInt(rand() % 41-20), csFixedFromInt(rand()  % 41-20), csFixedFromInt(rand() %  21-10)};
+    for (int i = 0; i < 20; i++) {
+        csVec3 pos = {csFixedFromInt(rand() % 41-20), csFixedFromInt(rand()  % 11-5), csFixedFromInt(rand() %  41-20)};
         //csVec3 pos = {csFixedFromInt(0), csFixedFromInt(0), csFixedFromInt(0)};
         csTransform transform;
-        csMatInit(&transform.m);
-        csMatTranslate(&transform.m, &pos);
+        csTransformInit(&transform);
+        csTransformTranslate(&transform, &pos);
         ecs_entity_t pyramid_entity = ecs_entity_init(scene->world,&entitydesc);
 
         ecs_set_ptr(scene->world, pyramid_entity, csMesh, &mesh);
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
         csGraphicsFrameEnd(context);
         int fps = csFixedToInt(csFixedDiv(csFixedFromInt(1), delta));
 
-        printf("fps : %f\n",csFixedToFloat(delta));
+        printf("fps : %i\n",fps);
     }
     csSceneDestroy(scene);
     csGraphicsContextDestroy(context);

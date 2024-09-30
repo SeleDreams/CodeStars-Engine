@@ -18,6 +18,7 @@ static inline void csQuatFromAxisAngle(csQuat *dest,const csVec3 *axis, csFixed 
 #define FIXED_POINT_TWO (2 << 16)
 
 extern void csQuatToMat(const qf16 *q, mf16 *matrix);
+extern void csMatToQuat(const mf16 *matrix, qf16 *q);
 
 
 static inline void csQuatRotateVector(csVec3 *dest, const csQuat *q, const csVec3 *v) { qf16_rotate(dest,q,v);}

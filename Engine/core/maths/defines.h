@@ -12,6 +12,7 @@ typedef mf16 csMat4;
 typedef int csMat4_2012[16];
 
 #define csFixedFromInt(value) ((csFixed)F16(value))
+#define csFixedFromUInt(value) ((fix16_t)((value) * 65536.0 + 0.5))
 #define csFixedFromFloat(value) ((csFixed)F16(value))
 
 #define csFixedToFloat(value) ((float)(fix16_to_float(value)))

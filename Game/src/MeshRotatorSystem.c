@@ -3,6 +3,7 @@
 //
 #include "MeshRotatorSystem.h"
 
+#include <core/os_functions.h>
 #include <core/graphics/Mesh.h>
 #include <core/maths/includes.h>
 #include <core/components/transform.h>
@@ -43,7 +44,7 @@ void generateRandomAxis(csVec3* axis) {
     csVec3Normalize(axis, axis);
 }
 
-void updateRotation(csMat4 *modelTransform, MeshRotationState *state) {
+void updateRotation(csTransform *modelTransform, MeshRotationState *state) {
     state->angle = csFixedAdd(state->angle, csFixedFromInt(5));
     int angleInt = csFixedToInt(state->angle);
     if (angleInt > 359) {
@@ -52,9 +53,9 @@ void updateRotation(csMat4 *modelTransform, MeshRotationState *state) {
     }
     csQuatFromAxisAngle(&state->rotation, &state->rotationAxis, csFixedDegToRad(csFixedFromInt(5)));
     csQuatNormalize(&state->rotation, &state->rotation);
-    csMatRotate(modelTransform, &state->rotation);
+    csTransformRotate(modelTransform, &state->rotation);
 }
-
+static int times = 0;
 void csMeshRotatorSystem(ecs_iter_t *it) {
     csTransform *transform = ecs_field(it, csTransform, 1);
     static MeshRotationState *rotationStates = NULL;
@@ -68,9 +69,23 @@ void csMeshRotatorSystem(ecs_iter_t *it) {
     }
 
     for (int i = 0; i < it->count; i++) {
-        csMatScale(&transform[i].m, &size);
-        updateRotation(&transform[i].m, &rotationStates[i]);
-        csMatTranslate(&transform[i].m, &pos);
+        /*size.x = csFixedSub(size.x,csFixedMul(csFixedFromFloat(0.1),csGetDeltaTime()));
+        size.y = csFixedSub(size.y,csFixedMul(csFixedFromFloat(0.1),csGetDeltaTime()));
+        size.z = csFixedSub(size.z,csFixedMul(csFixedFromFloat(0.1),csGetDeltaTime()));*/
+
+        /*if (times == 0) {
+            csMatScale(&transform[i].m, &size);
+        }*/
+
+       //
+        size.x = csFixedSub(size.x,csFixedMul(csFixedFromFloat(0.01),csGetDeltaTime()));
+        size.y = csFixedSub(size.y,csFixedMul(csFixedFromFloat(0.01),csGetDeltaTime()));
+        size.z = csFixedSub(size.z,csFixedMul(csFixedFromFloat(0.01),csGetDeltaTime()));
+
+        csTransformScaleSet(&transform[i],&size);
+        updateRotation(&transform[i], &rotationStates[i]);
+        csTransformTranslate(&transform[i], &pos);
     }
+    times++;
 }
 

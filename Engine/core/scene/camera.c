@@ -12,7 +12,7 @@
 
 ECS_COMPONENT_DECLARE(csCamera);
 
-unsigned int m_viewport[4];
+uint32_t m_viewport[4];
 void csCameraModuleImport(ecs_world_t *ecs) {
 #ifdef USE_GL
 #include <gles/gl.h>
@@ -54,17 +54,16 @@ void csCameraStart(ecs_iter_t *it) {
     static const csVec3 csCameraPos = {
         .x = csFixedFromFloat(0.0),
         .y = csFixedFromFloat(0.0),
-        .z = csFixedFromFloat(-7.0)
+        .z = csFixedFromFloat(0)
     };
     for (int i = 0; i < it->count; i++) {
         csMatInit(&camera[i].projection);
-        csMatInit(&transform[i].m);
+        csTransformInit(&transform[i]);
         csFixed fovy = csFixedFromFloat(45.0f);
-        csFixed aspect = csFixedDiv(csFixedFromInt(m_viewport[2]),csFixedFromInt(m_viewport[3]));
+        csFixed aspect = csFixedDivUnsigned(csFixedFromUInt(m_viewport[2]),csFixedFromUInt(m_viewport[3]));
         csFixed zNear = csFixedFromFloat(0.01f);
         csFixed zFar = csFixedFromFloat(100.0f);
         csMatPerspective(fovy, aspect, zNear, zFar, &camera[i].projection);
-        csMatTranslate(&transform[i].m,&csCameraPos);
     }
 }
 const csVec3 up = {
@@ -104,23 +103,24 @@ void csCameraUpdate(ecs_iter_t *it) {
     static csVec3 translation;
     static csVec3 final;
     for (int i = 0; i < it->count; i++) {
-         translation = get_forward_vector(&transform[i].m);
+         translation = get_forward_vector(&transform[i].transform);
 
         csVec3MulS(&final,&translation,csFixedMul(it->delta_time,csFixedFromInt(10)) );
-       csMatTranslate(&transform[i].m,&final);
-        csMatGetPosition(&final,&transform[i].m);
+       //csMatTranslate(&transform[i].m,&final);
+        csTransformPositionGet(&final,&transform[i]);
         //if (abs(final.z) > csFixedFromInt(30)) {
             csQuat rot;
             csQuatFromAxisAngle(&rot,&up,csFixedMul(it->delta_time,csFixedDegToRad(csFixedFromInt(50))));
-            csMatRotate(&transform[i].m,&rot);
+            csTransformRotate(&transform[i],&rot);
+            //csMatRotate(&transform[i].m,&rot);
         //}
     }
 }
 
 ecs_entity_t csCameraCreate(ecs_world_t *ecs) {
-    printf("Creating camera");
     ecs_entity_t cam = ecs_set_name(ecs,0,"camera");
     ecs_set(ecs,cam,csCamera,{0});
     ecs_set(ecs,cam,csTransform,{0});
+    printf("Created camera\n");
     return cam;
 }

@@ -5,6 +5,15 @@
 #ifndef OS_FUNCTIONS_H
 #define OS_FUNCTIONS_H
 #include <stdint.h>
-extern uint32_t csGetTime(void);
-extern int32_t csGetClockDivider();
+#include <core/maths/defines.h>
+#include <core/maths/arithmetic.h>
+
+static inline csFixed csGetTimeInterval(int framerate) {
+    return csFixedDiv(csFixedFromInt(1),csFixedFromInt(framerate));
+}
+
+extern csFixed csGetDeltaTime(void);
+
+extern csFixed csGetSystemDeltaTime(void);
+extern void csUpdateDeltaTime(void);
 #endif //OS_FUNCTIONS_H
