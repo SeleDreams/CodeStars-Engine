@@ -8,27 +8,24 @@
 #include "core/components/transform.h"
 #include "core/scene/scene.h"
 
-void setupProjectionMatrix(m4x4 *nds_mat,const csCamera *cam) {
+static inline void setupProjectionMatrix(m4x4 *nds_mat,const csCamera *cam) {
     csMatTo2012(&nds_mat->m, &cam->projection);
     glMatrixMode(GL_PROJECTION);
     glLoadMatrix4x4(nds_mat);
 }
 
-void setupModelViewMatrix(m4x4 *nds_mat,csTransform *camTransform) {
-    csTransformUpdate(camTransform);
+static inline void setupModelViewMatrix(m4x4 *nds_mat,csTransform *camTransform) {
     csMatTo2012(&nds_mat->m, &camTransform->transform);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrix4x4(nds_mat);
 }
 
-void applyTransformMatrix(m4x4 *nds_mat,csTransform *transform) {
-    csTransformUpdate(transform);
+static inline void applyTransformMatrix(m4x4 *nds_mat,csTransform *transform) {
     csMatTo2012(&nds_mat->m, &transform->transform);
     glMultMatrix4x4(nds_mat);
 }
 
 void drawMesh(const csMesh *mesh) {
-    glBegin(GL_TRIANGLES);
     unsigned int realIndex;
     for (int index = 0; index < mesh->indices_count; index++) {
         realIndex = mesh->indices[index] * 3;
@@ -45,27 +42,24 @@ void drawMesh(const csMesh *mesh) {
             );
     }
 
-    glEnd();
 }
-
+m4x4 nds_mat;
 void csMeshDraw(ecs_iter_t *it) {
     const csCamera *cam = ecs_get(it->world, csSceneRoot->camera, csCamera);
     csTransform *camTransform = (csTransform*)ecs_get(it->world, csSceneRoot->camera, csTransform);
     csMesh *mesh = ecs_field(it, csMesh, 0);
     csTransform *transform = ecs_field(it, csTransform, 1);
 
-    m4x4 nds_mat;
-
     setupProjectionMatrix(&nds_mat,cam);
     setupModelViewMatrix(&nds_mat,camTransform);
-
+    glBegin(GL_TRIANGLES);
     for (int i = 0; i < it->count; i++) {
         glPushMatrix();
         applyTransformMatrix(&nds_mat,&transform[i]);
         drawMesh(&mesh[i]);
         glPopMatrix(1);
     }
-
+    glEnd();
     glFlush(0);
 }
 

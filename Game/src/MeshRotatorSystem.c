@@ -25,9 +25,9 @@ csVec3 rotationAxis = {
     .y = csFixedFromInt(1), // 1/sqrt(2)
     .z = 0
 };
-
 csFixed randomFixed(void) {
-    return csFixedDiv(csFixedFromInt(rand() % 2001 - 1000), csFixedFromInt(1000));
+    static const csFixed thousand = csFixedFromInt(1000);
+    return csFixedDiv(csFixedFromInt(rand() % 2001 - 1000), thousand);
 }
 
 typedef struct {
@@ -45,17 +45,19 @@ void generateRandomAxis(csVec3* axis) {
 }
 
 void updateRotation(csTransform *modelTransform, MeshRotationState *state) {
-    state->angle = csFixedAdd(state->angle, csFixedFromInt(5));
+    csFixed five = csFixedMul(csFixedFromInt(150),csGetDeltaTime());
+    state->angle = csFixedAdd(state->angle, five);
     int angleInt = csFixedToInt(state->angle);
     if (angleInt > 359) {
         state->angle = csFixedFromInt(1);
         generateRandomAxis(&state->rotationAxis);
     }
-    csQuatFromAxisAngle(&state->rotation, &state->rotationAxis, csFixedDegToRad(csFixedFromInt(5)));
+    csQuatFromAxisAngle(&state->rotation, &state->rotationAxis, csFixedDegToRad(five));
     csQuatNormalize(&state->rotation, &state->rotation);
     csTransformRotate(modelTransform, &state->rotation);
+
 }
-static int times = 0;
+
 void csMeshRotatorSystem(ecs_iter_t *it) {
     csTransform *transform = ecs_field(it, csTransform, 1);
     static MeshRotationState *rotationStates = NULL;
@@ -69,23 +71,9 @@ void csMeshRotatorSystem(ecs_iter_t *it) {
     }
 
     for (int i = 0; i < it->count; i++) {
-        /*size.x = csFixedSub(size.x,csFixedMul(csFixedFromFloat(0.1),csGetDeltaTime()));
-        size.y = csFixedSub(size.y,csFixedMul(csFixedFromFloat(0.1),csGetDeltaTime()));
-        size.z = csFixedSub(size.z,csFixedMul(csFixedFromFloat(0.1),csGetDeltaTime()));*/
-
-        /*if (times == 0) {
-            csMatScale(&transform[i].m, &size);
-        }*/
-
-       //
-        size.x = csFixedSub(size.x,csFixedMul(csFixedFromFloat(0.01),csGetDeltaTime()));
-        size.y = csFixedSub(size.y,csFixedMul(csFixedFromFloat(0.01),csGetDeltaTime()));
-        size.z = csFixedSub(size.z,csFixedMul(csFixedFromFloat(0.01),csGetDeltaTime()));
-
         csTransformScaleSet(&transform[i],&size);
         updateRotation(&transform[i], &rotationStates[i]);
         csTransformTranslate(&transform[i], &pos);
     }
-    times++;
 }
 

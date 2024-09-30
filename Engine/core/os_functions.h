@@ -5,8 +5,8 @@
 #ifndef OS_FUNCTIONS_H
 #define OS_FUNCTIONS_H
 #include <stdint.h>
-#include <core/maths/defines.h>
-#include <core/maths/arithmetic.h>
+#include "maths/defines.h"
+#include "maths/arithmetic.h"
 
 static inline csFixed csGetTimeInterval(int framerate) {
     return csFixedDiv(csFixedFromInt(1),csFixedFromInt(framerate));

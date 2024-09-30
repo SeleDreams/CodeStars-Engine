@@ -10,4 +10,5 @@ get_target_property(INCLUDE_DIRS ${PROJECT_NAME}_libs INTERFACE_INCLUDE_DIRECTOR
 include_directories(INCLUDE_DIRS)
 target_include_directories(CodeStars-Engine INTERFACE ${INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(core)
+target_link_libraries(CodeStars-Engine INTERFACE CodeStars-Engine_core)
 add_subdirectory(platform-specifics)

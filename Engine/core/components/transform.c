@@ -7,45 +7,30 @@ ECS_COMPONENT_DECLARE(csTransform);
 void csTransformModuleImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs,csTransformModule);
     ECS_COMPONENT_DEFINE(ecs,csTransform);
+    ecs_set_hooks(ecs,csTransform,{
+        .ctor = csTransformConstructor
+        });
+
+    ecs_system(ecs, {
+         .entity = ecs_entity(ecs, {
+             .name = "csTransformUpdateSystem",
+             .add = ecs_ids( ecs_dependson(EcsOnUpdate) )
+         }),
+         .query.terms = {
+             {.id=ecs_id(csTransform),.inout = EcsIn}
+         },
+         .callback = csTransformUpdateSystem
+    });
 }
 
-void csTransformInit(csTransform *transform) {
-    csMatInit(&transform->rotation);
-    csMatInit(&transform->scale);
-    csMatInit(&transform->translation);
-    csMatInit(&transform->transform);
+void csTransformUpdateSystem(ecs_iter_t *iter) {
+    csTransform *transform = ecs_field(iter,csTransform,0);
+    for (int i = 0; i < iter->count;i++) {
+        csTransformUpdate(&transform[i]);
+    }
 }
-
-void csTransformUpdate(csTransform *transform) {
-    csMatInit(&transform->transform);
-    csMatMul(&transform->transform,&transform->transform,&transform->scale);
-    csMatMul(&transform->transform,&transform->transform,&transform->rotation);
-    csMatMul(&transform->transform,&transform->transform,&transform->translation);
-}
-
-void csTransformPositionSet(csTransform *transform, const csVec3 *pos) {
-    csMatPositionSet(&transform->translation,pos);
-}
-void csTransformPositionGet(csVec3 *pos, const csTransform *trans) {
-    csMatPositionGet(pos,&trans->translation);
-}
-void csTransformTranslate(csTransform *transform, const csVec3 *pos) {
-    csMatTranslate(&transform->translation,pos);
-}
-
-void csTransformScaleSet(csTransform *transform, const csVec3 *scale) {
-    csMatScaleSet(&transform->scale,scale);
-}
-void csTransformScaleGet(csVec3 *scale, const csTransform *transform) {
-    csMatScaleGet(scale,&transform->scale);
-}
-void csTransformRotationSet(csTransform *transform, const csQuat *rot) {
-    csMatRotationSet(&transform->rotation,rot);
-}
-void csTransformRotationGet(csQuat *rot, const csTransform *transform) {
-    csMatRotationGet(rot,&transform->rotation);
-}
-
-void csTransformRotate(csTransform *transform, const csQuat *rot) {
-    csMatRotate(&transform->rotation,rot);
+void csTransformConstructor(void *ptr, int32_t count, const ecs_type_info_t *type_info) {
+    for (int i = 0; i < count;i++) {
+        csTransformInit(&((csTransform*)ptr)[i]);
+    }
 }

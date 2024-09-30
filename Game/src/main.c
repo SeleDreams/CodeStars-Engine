@@ -38,18 +38,18 @@ int main(int argc, char **argv)
         },
         .callback = csMeshRotatorSystem
     });
-    ecs_entity_desc_t entitydesc;
-    memset(&entitydesc,0,sizeof(ecs_entity_desc_t));
-    csMesh mesh;
-    csMeshCreatePrimitiveCube(&mesh);
 
-    for (int i = 0; i < 20; i++) {
+
+
+    for (int i = 0; i < 45; i++) {
         csVec3 pos = {csFixedFromInt(rand() % 41-20), csFixedFromInt(rand()  % 11-5), csFixedFromInt(rand() %  41-20)};
         //csVec3 pos = {csFixedFromInt(0), csFixedFromInt(0), csFixedFromInt(0)};
+        csMesh mesh;
+        csMeshCreatePrimitiveCube(&mesh);
         csTransform transform;
         csTransformInit(&transform);
-        csTransformTranslate(&transform, &pos);
-        ecs_entity_t pyramid_entity = ecs_entity_init(scene->world,&entitydesc);
+        csTransformPositionSet(&transform, &pos);
+        ecs_entity_t pyramid_entity = ecs_entity(scene->world,{0});
 
         ecs_set_ptr(scene->world, pyramid_entity, csMesh, &mesh);
         ecs_set_ptr(scene->world, pyramid_entity, csTransform, &transform);

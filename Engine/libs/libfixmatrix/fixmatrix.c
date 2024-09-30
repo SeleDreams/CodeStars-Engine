@@ -46,19 +46,19 @@ void mf16_fill_diagonal(mf16 *dest, fix16_t value)
 void mf16_mul(mf16 *dest, const mf16 *a, const mf16 *b)
 {
     int row, column;
-    
+
     // If dest and input matrices alias, we have to use a temp matrix.
     mf16 tmp;
     fa16_unalias(dest, (void**)&a, (void**)&b, &tmp, sizeof(tmp));
-    
+
     dest->errors = a->errors | b->errors;
-    
+
     if (a->columns != b->rows)
         dest->errors |= FIXMATRIX_DIMERR;
-    
+
     dest->rows = a->rows;
     dest->columns = b->columns;
-    
+
     for (column = 0; column < dest->columns; column++)
     {
         for (row = 0; row < dest->rows; row++)

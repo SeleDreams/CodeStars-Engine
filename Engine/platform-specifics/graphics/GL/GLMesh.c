@@ -39,18 +39,18 @@ void csMeshDraw(ecs_iter_t *it)
     // Enable client states once
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
-    csTransformUpdate(camTransform);
     glLoadMatrixx(camTransform->transform.data);
 
     for (int i = 0; i < it->count;i++) {
         csMesh *realMesh = &mesh[i];
         glPushMatrix();
 
-        csTransformUpdate(&transform[i]);
         glMultMatrixx(transform[i].transform.data);
+
         // Set vertex and color pointers
         glVertexPointer(3, GL_FIXED, 0, realMesh->vertices);
         glColorPointer(4, GL_UNSIGNED_BYTE, 0, realMesh->colors);
+
         // Draw the combined mesh
         glDrawElements(GL_TRIANGLES, realMesh->indices_count, GL_UNSIGNED_BYTE, realMesh->indices);
 

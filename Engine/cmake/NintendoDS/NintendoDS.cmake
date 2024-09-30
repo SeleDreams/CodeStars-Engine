@@ -1,7 +1,7 @@
 message(STATUS "Setting up the nintendo ds toolchain...")
 set(CMAKE_C_OUTPUT_EXTENSION .o)
 set(CMAKE_CXX_OUTPUT_EXTENSION .o)
-set(CMAKE_C_FLAGS_DEBUG          "-O2 -g -DDEBUG -ffast-math")
+set(CMAKE_C_FLAGS_DEBUG          "-O2 -funroll-loops -flto -DNDEBUG -ffast-math")
 set(CMAKE_C_FLAGS_MINSIZEREL     "-Oz -DNDEBUG")
 set(CMAKE_C_FLAGS_RELEASE        "-O2 -DNDEBUG")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG")

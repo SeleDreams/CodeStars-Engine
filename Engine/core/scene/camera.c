@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 
+#include "../os_functions.h"
 #include "../components/transform.h"
 #include "../memory/pool_allocator.h"
 #include "../maths/includes.h"
@@ -51,11 +52,6 @@ void csCameraModuleImport(ecs_world_t *ecs) {
 void csCameraStart(ecs_iter_t *it) {
     csCamera *camera = ecs_field(it,csCamera,0);
     csTransform *transform = ecs_field(it,csTransform,1);
-    static const csVec3 csCameraPos = {
-        .x = csFixedFromFloat(0.0),
-        .y = csFixedFromFloat(0.0),
-        .z = csFixedFromFloat(0)
-    };
     for (int i = 0; i < it->count; i++) {
         csMatInit(&camera[i].projection);
         csTransformInit(&transform[i]);
@@ -66,54 +62,23 @@ void csCameraStart(ecs_iter_t *it) {
         csMatPerspective(fovy, aspect, zNear, zFar, &camera[i].projection);
     }
 }
+
 const csVec3 up = {
-.x = 0,
+    .x = 0,
     .y =  csFixedFromInt(1),
     .z = 0
 };
-csVec3 get_forward_vector(const csMat4* transform) {
-    csVec3 forward;
-    forward.x = transform->data[8];
-    forward.y = transform->data[9];
-    forward.z = transform->data[10];
-    csVec3Normalize(&forward,&forward);
-    return forward;
-}
 
-csVec3 get_right_vector(const csMat4* transform) {
-    csVec3 right;
-    right.x = transform->data[0];
-    right.y = transform->data[1];
-    right.z = transform->data[2];
-    csVec3Normalize(&right,&right);
-    return right;
-}
-
-csVec3 get_up_vector(const csMat4* transform) {
-    csVec3 up;
-    up.x = transform->data[4];
-    up.y = transform->data[5];
-    up.z = transform->data[6];
-    csVec3Normalize(&up,&up);
-    return up;
-}
 void csCameraUpdate(ecs_iter_t *it) {
     csCamera *camera = ecs_field(it,csCamera,0);
     csTransform *transform = ecs_field(it,csTransform,1);
     static csVec3 translation;
     static csVec3 final;
     for (int i = 0; i < it->count; i++) {
-         translation = get_forward_vector(&transform[i].transform);
-
-        csVec3MulS(&final,&translation,csFixedMul(it->delta_time,csFixedFromInt(10)) );
-       //csMatTranslate(&transform[i].m,&final);
-        csTransformPositionGet(&final,&transform[i]);
-        //if (abs(final.z) > csFixedFromInt(30)) {
-            csQuat rot;
-            csQuatFromAxisAngle(&rot,&up,csFixedMul(it->delta_time,csFixedDegToRad(csFixedFromInt(50))));
-            csTransformRotate(&transform[i],&rot);
-            //csMatRotate(&transform[i].m,&rot);
-        //}
+        csQuat rot;
+        csFixed angle = csFixedMul(csFixedFromInt(30),csGetDeltaTime());
+        csQuatFromAxisAngle(&rot,&up,csFixedDegToRad(angle));
+        csTransformRotate(&transform[i],&rot);
     }
 }
 

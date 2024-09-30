@@ -10,7 +10,6 @@ typedef struct csMesh {
     uint32_t vertices_count;
     uint32_t indices_count;
     uint32_t colors_count;
-    ecs_query_t *q;
 } csMesh;
 
 extern ECS_COMPONENT_DECLARE(csMesh);

@@ -12,13 +12,11 @@ static inline void csMatFill(csMat4 *dest, const csFixed value) {
     mf16_fill(dest, value);
 }
 
-static void csMatFillDiagonal(csMat4 *dest, const csFixed value) { mf16_fill_diagonal(dest, value); }
+static inline void csMatFillDiagonal(csMat4 *dest, const csFixed value) { mf16_fill_diagonal(dest, value); }
 static inline void csMatInit(csMat4 *dest) {
     mf16_initialize(dest, 4, 4);
     csMatFillDiagonal(dest,csFixedFromInt(1));
 }
-
-
 
 static inline int csMatGet(const csMat4 *a, int row, int column) {
     return a->data[column * a->rows + row];
@@ -73,11 +71,11 @@ static inline void csMatScale(csMat4 *dest, const csVec3 *p_scale) {
     csMatMul(dest,dest,&cs_matrix_cache[0]);
 }
 
-static void csMatRotationSet(csMat4 *dest, const csQuat *rot) {
+static inline void csMatRotationSet(csMat4 *dest, const csQuat *rot) {
     csQuatToMat(rot, dest);
 }
 
-static void csMatRotationGet(csQuat *rot,const csMat4 *dest) {
+static inline void csMatRotationGet(csQuat *rot,const csMat4 *dest) {
     csMatToQuat(dest, rot);
 }
 
@@ -88,9 +86,42 @@ static inline void csMatRotate(csMat4 *dest, const csQuat *p_rot) {
 }
 
 
-void csMatPerspective(csFixed fovy, csFixed aspect, csFixed zNear, csFixed zFar, csMat4 *projection);
+static inline void csMatPerspective(csFixed fovy, csFixed aspect, csFixed zNear, csFixed zFar, csMat4 *projection) {
+    csFixed f = csFixedDiv(csFixedFromFloat(1.0f), csFixedTan(csFixedDiv(fovy, csFixedFromFloat(2.0f))));
+    csFixed rangeInv = csFixedDiv(csFixedFromFloat(1.0f), csFixedSub(zNear, zFar));
+    csFixed *matrix = projection->data;
+    matrix[0] = csFixedDiv(f, aspect);
+    matrix[1] = 0;
+    matrix[2] = 0;
+    matrix[3] = 0;
+
+    matrix[4] = 0;
+    matrix[5] = f;
+    matrix[6] = 0;
+    matrix[7] = 0;
+
+    matrix[8] = 0;
+    matrix[9] = 0;
+    matrix[10] = csFixedMul(csFixedAdd(zFar, zNear), rangeInv);
+    matrix[11] = -csFixedFromFloat(1.0f);
+
+    matrix[12] = 0;
+    matrix[13] = 0;
+    matrix[14] = csFixedMul(csFixedMul(csFixedFromFloat(2.0f), zFar), csFixedMul(zNear, rangeInv));
+    matrix[15] = 0;
+}
 
 
-void csMatToFloat(csFMat4 *dest, const csMat4 *mat, int print);
-void csMatTo2012(csMat4_2012 *dest, const csMat4 *mat);
+static inline void csMatToFloat(csFMat4 *dest, const csMat4 *mat) {
+    for (int i = 0; i < 16;i++)
+    {
+        (*dest)[i] = csFixedToFloat(mat->data[i]);
+    }
+}
+static inline void csMatTo2012(csMat4_2012 *dest, const csMat4 *mat) {
+    for (int i = 0; i < 16;i++)
+    {
+        (*dest)[i] = mat->data[i] >> 4;
+    }
+}
 #endif

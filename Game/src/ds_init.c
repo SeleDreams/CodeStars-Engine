@@ -25,7 +25,7 @@ void vblank_counter(void) {
 }
 
 int initialize_engine(void) {
-    setCpuClock(false);
+    setCpuClock(TRUE);
     irqSet(IRQ_VBLANK,vblank_counter);
     defaultExceptionHandler();
     return csNDSGraphicsInit();
