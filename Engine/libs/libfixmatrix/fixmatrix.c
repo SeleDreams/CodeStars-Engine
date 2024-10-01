@@ -30,7 +30,7 @@ void mf16_fill_diagonal(mf16 *dest, fix16_t value)
 {
     int col;
 
-    mf16_fill(dest, 0);
+    mf16_initialize(dest,4,4);
 
     for (col = 0; col < dest->columns; col++)
     {
@@ -43,12 +43,26 @@ void mf16_fill_diagonal(mf16 *dest, fix16_t value)
  * Operations between 2 matrices *
  *********************************/
 
+void mat4x4_mul(const mf16 *a, const mf16 *b, mf16 *result) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            csFixed sum = 0;
+            for (int k = 0; k < 4; ++k) {
+                sum += fix16_mul(a->data[k * 4 + i], b->data[j * 4 + k]);
+            }
+            result->data[j * 4 + i] = sum;
+        }
+    }
+}
+mf16 tmp;
 void mf16_mul(mf16 *dest, const mf16 *a, const mf16 *b)
 {
+    //mat4x4_mul(a,b,dest);
+   // return;
     int row, column;
 
     // If dest and input matrices alias, we have to use a temp matrix.
-    mf16 tmp;
+
     fa16_unalias(dest, (void**)&a, (void**)&b, &tmp, sizeof(tmp));
 
     dest->errors = a->errors | b->errors;
@@ -59,16 +73,18 @@ void mf16_mul(mf16 *dest, const mf16 *a, const mf16 *b)
     dest->rows = a->rows;
     dest->columns = b->columns;
 
-    for (column = 0; column < dest->columns; column++)
-    {
-        for (row = 0; row < dest->rows; row++)
-        {
-            dest->data[column * 4 + row] = 0;
+    for (column = 0; column < dest->columns; column++) {
+        for (row = 0; row < dest->rows; row++) {
+            int index = column * 4 + row;
+            dest->data[index] = 0;
+            int base_a = column * 4;
+            int base_b = row;
             for (int k = 0; k < 4; ++k) {
-                dest->data[column * 4 + row] += fix16_mul(a->data[column * 4 + k], b->data[k * 4 + row]);
+                dest->data[index] += fix16_mul(a->data[base_a + k], b->data[k * 4 + base_b]);
             }
         }
     }
+
 }
 
 

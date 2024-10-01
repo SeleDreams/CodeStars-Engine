@@ -123,21 +123,43 @@ void qf16_from_axis_angle(qf16 *dest, const v3d *axis, fix16_t angle)
 // Unit quaternion to rotation matrix
 void qf16_to_matrix(mf16 *dest, const qf16 *q)
 {
-    dest->rows = dest->columns = 3;
+    //fix16_t a2 = fix16_mul(q->a, q->a);
+    fix16_t b2 = fix16_mul(q->b, q->b);
+    fix16_t c2 = fix16_mul(q->c, q->c);
+    fix16_t d2 = fix16_mul(q->d, q->d);
+
+    fix16_t ab = fix16_mul(q->a, q->b);
+    fix16_t ac = fix16_mul(q->a, q->c);
+    fix16_t ad = fix16_mul(q->a, q->d);
+    fix16_t bc = fix16_mul(q->b, q->c);
+    fix16_t bd = fix16_mul(q->b, q->d);
+    fix16_t cd = fix16_mul(q->c, q->d);
+
+    dest->rows = dest->columns = 4;
     dest->errors = 0;
-    dest->data[0] = fix16_one - 2 * (fix16_sq(q->c) + fix16_sq(q->d));
-    dest->data[4] = fix16_one - 2 * (fix16_sq(q->b) + fix16_sq(q->d));
-    dest->data[8] = fix16_one - 2 * (fix16_sq(q->b) + fix16_sq(q->c));
 
-    dest->data[3] = 2 * (fix16_mul(q->b, q->c) + fix16_mul(q->a, q->d));
-    dest->data[1] = 2 * (fix16_mul(q->b, q->c) - fix16_mul(q->a, q->d));
+    dest->data[0] = fix16_one - 2 * (c2 + d2);
+    dest->data[1] = 2 * (bc - ad);
+    dest->data[2] = 2 * (bd + ac);
+    dest->data[3] = 0;
 
-    dest->data[6] = 2 * (fix16_mul(q->b, q->d) - fix16_mul(q->a, q->c));
-    dest->data[2] = 2 * (fix16_mul(q->b, q->d) + fix16_mul(q->a, q->c));
+    dest->data[4] = 2 * (bc + ad);
+    dest->data[5] = fix16_one - 2 * (b2 + d2);
+    dest->data[6] = 2 * (cd - ab);
+    dest->data[7] = 0;
 
-    dest->data[7] = 2 * (fix16_mul(q->c, q->d) + fix16_mul(q->a, q->b));
-    dest->data[5] = 2 * (fix16_mul(q->c, q->d) - fix16_mul(q->a, q->b));
+    dest->data[8] = 2 * (bd - ac);
+    dest->data[9] = 2 * (cd + ab);
+    dest->data[10] = fix16_one - 2 * (b2 + c2);
+    dest->data[11] = 0;
+
+    dest->data[12] = 0;
+    dest->data[13] = 0;
+    dest->data[14] = 0;
+    dest->data[15] = fix16_one;
 }
+
+
 
 
 void qf16_rotate(v3d *dest, const qf16 *q, const v3d *v)

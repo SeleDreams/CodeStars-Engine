@@ -55,10 +55,10 @@ void csCameraStart(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i++) {
         csMatInit(&camera[i].projection);
         csTransformInit(&transform[i]);
-        csFixed fovy = csFixedFromFloat(45.0f);
+        csFixed fovy = csFixedFromFloat(70.0f);
         csFixed aspect = csFixedDivUnsigned(csFixedFromUInt(m_viewport[2]),csFixedFromUInt(m_viewport[3]));
-        csFixed zNear = csFixedFromFloat(0.01f);
-        csFixed zFar = csFixedFromFloat(100.0f);
+        csFixed zNear = csFixedFromFloat(0.11f);
+        csFixed zFar = csFixedFromFloat(20.0f);
         csMatPerspective(fovy, aspect, zNear, zFar, &camera[i].projection);
     }
 }
@@ -74,11 +74,19 @@ void csCameraUpdate(ecs_iter_t *it) {
     csTransform *transform = ecs_field(it,csTransform,1);
     static csVec3 translation;
     static csVec3 final;
+    static csFixed angle;
+    csQuat rot;
     for (int i = 0; i < it->count; i++) {
-        csQuat rot;
-        csFixed angle = csFixedMul(csFixedFromInt(30),csGetDeltaTime());
+
+
+        angle += csFixedMul(csFixedFromInt(30),it->delta_time);
+        if (csFixedToInt(angle) > 359) {
+            angle = csFixedFromInt(1);
+        }
         csQuatFromAxisAngle(&rot,&up,csFixedDegToRad(angle));
-        csTransformRotate(&transform[i],&rot);
+        csQuatNormalize(&rot,&rot);
+        //csTransformRotate(&transform[i],&rot);
+        csTransformRotationSet(&transform[i],&rot);
     }
 }
 

@@ -2,6 +2,7 @@
 #define CODESTARS_ENGINE_CORE_MATHS_QUAT_H
 #include "defines.h"
 #include "vec.h"
+#include <fixquat.h>
 static inline void csQuatConjugate(csQuat *dest, const csQuat *q) { qf16_conj(dest,q);}
 static inline void csQuatMul(csQuat *dest, const csQuat *q, const csQuat *r) {qf16_mul(dest,q,r);}
 static inline void csQuatAdd(csQuat *dest, const csQuat *q, const csQuat *r) {qf16_add(dest,q,r);}
@@ -14,11 +15,9 @@ static inline void csQuatPow(csQuat *dest, const csQuat *q, csFixed power) { qf1
 static inline void csQuatAvg(csQuat *dest, const csQuat *q1, const csQuat *q2, csFixed weight) { qf16_avg(dest,q1,q2,weight);}
 static inline void csQuatFromAxisAngle(csQuat *dest,const csVec3 *axis, csFixed angle) {qf16_from_axis_angle(dest,axis,angle);}
 
-#define FIXED_POINT_ONE (1 << 16)
-#define FIXED_POINT_TWO (2 << 16)
-
 static inline void csQuatToMat(const qf16 *q, mf16 *matrix) {
-    fix16_t xx = csFixedMul(q->b, q->b);
+    qf16_to_matrix(matrix,q);
+    /*fix16_t xx = csFixedMul(q->b, q->b);
     fix16_t xy = csFixedMul(q->b, q->c);
     fix16_t xz = csFixedMul(q->b, q->d);
     fix16_t xw = csFixedMul(q->b, q->a);
@@ -52,35 +51,11 @@ static inline void csQuatToMat(const qf16 *q, mf16 *matrix) {
     matrix->data[12] = 0;
     matrix->data[13] = 0;
     matrix->data[14] = 0;
-    matrix->data[15] = FIXED_POINT_ONE;
+    matrix->data[15] = FIXED_POINT_ONE;*/
 }
+
 static inline void csMatToQuat(const mf16 *matrix, qf16 *q) {
-    fix16_t trace = matrix->data[0] + matrix->data[5] + matrix->data[10];
-    if (trace > 0) {
-        fix16_t s = csFixedMul(csFixedSqrt(trace + FIXED_POINT_ONE), FIXED_POINT_TWO);
-        q->a = csFixedMul(FIXED_POINT_ONE, s);
-        q->b = csFixedMul(matrix->data[9] - matrix->data[6], s);
-        q->c = csFixedMul(matrix->data[2] - matrix->data[8], s);
-        q->d = csFixedMul(matrix->data[4] - matrix->data[1], s);
-    } else if ((matrix->data[0] > matrix->data[5]) && (matrix->data[0] > matrix->data[10])) {
-        fix16_t s = csFixedMul(csFixedSqrt(FIXED_POINT_ONE + matrix->data[0] - matrix->data[5] - matrix->data[10]), FIXED_POINT_TWO);
-        q->a = csFixedMul(matrix->data[9] - matrix->data[6], s);
-        q->b = csFixedMul(FIXED_POINT_ONE, s);
-        q->c = csFixedMul(matrix->data[4] + matrix->data[1], s);
-        q->d = csFixedMul(matrix->data[2] + matrix->data[8], s);
-    } else if (matrix->data[5] > matrix->data[10]) {
-        fix16_t s = csFixedMul(csFixedSqrt(FIXED_POINT_ONE + matrix->data[5] - matrix->data[0] - matrix->data[10]), FIXED_POINT_TWO);
-        q->a = csFixedMul(matrix->data[2] - matrix->data[8], s);
-        q->b = csFixedMul(matrix->data[4] + matrix->data[1], s);
-        q->c = csFixedMul(FIXED_POINT_ONE, s);
-        q->d = csFixedMul(matrix->data[9] + matrix->data[6], s);
-    } else {
-        fix16_t s = csFixedMul(csFixedSqrt(FIXED_POINT_ONE + matrix->data[10] - matrix->data[0] - matrix->data[5]), FIXED_POINT_TWO);
-        q->a = csFixedMul(matrix->data[4] - matrix->data[1], s);
-        q->b = csFixedMul(matrix->data[2] + matrix->data[8], s);
-        q->c = csFixedMul(matrix->data[9] + matrix->data[6], s);
-        q->d = csFixedMul(FIXED_POINT_ONE, s);
-    }
+
 }
 
 

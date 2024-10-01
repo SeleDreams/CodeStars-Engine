@@ -423,7 +423,8 @@ fix16_t fix16_div(fix16_t a, fix16_t b)
 	
 	return result;
 }
-#endif /* !defined(FIXMATH_NO_HARD_DIVISION) */
+#endif
+ /* !defined(FIXMATH_NO_HARD_DIVISION) */
 
 /* Alternative 32-bit implementation of fix16_div. Fastest on e.g. Atmel AVR.
  * This does the division manually, and is therefore good for processors that

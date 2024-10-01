@@ -41,20 +41,20 @@ int main(int argc, char **argv)
 
 
 
-    for (int i = 0; i < 45; i++) {
+    for (int i = 0; i < 70; i++) {
         csVec3 pos = {csFixedFromInt(rand() % 41-20), csFixedFromInt(rand()  % 11-5), csFixedFromInt(rand() %  41-20)};
-        //csVec3 pos = {csFixedFromInt(0), csFixedFromInt(0), csFixedFromInt(0)};
+
         csMesh mesh;
         csMeshCreatePrimitiveCube(&mesh);
         csTransform transform;
         csTransformInit(&transform);
         csTransformPositionSet(&transform, &pos);
+
         ecs_entity_t pyramid_entity = ecs_entity(scene->world,{0});
 
         ecs_set_ptr(scene->world, pyramid_entity, csMesh, &mesh);
         ecs_set_ptr(scene->world, pyramid_entity, csTransform, &transform);
     }
-    //csFree(mesh,sizeof(csMesh));
     csSceneStart(scene);
 
     const int framerate = 60;

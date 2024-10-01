@@ -1,7 +1,7 @@
 # Create an interface library
 add_library(${PROJECT_NAME}_libs INTERFACE)
 # Add subdirectories
-add_subdirectory(libfixmatrix)
+
 
 
 # Set options
@@ -22,9 +22,15 @@ if (NintendoDS)
             -DFLECS_PIPELINE
             -DFLECS_SYSTEM
             -DFLECS_MODULE
+            -DFIXMATH_FAST_SIN
+            -DFIXMATH_NO_64BIT
+            -DFIXMATH_SIN_LUT
+            -DFIXMATH_NO_ROUNDING
+            -DFIXMATH_NO_OVERFLOW
     )
     option(FLECS_PIC "" ON)
 endif()
+add_subdirectory(libfixmatrix)
 add_subdirectory(flecs)
 if (NintendoDS)
 set_arm9_compile_options(flecs_static)

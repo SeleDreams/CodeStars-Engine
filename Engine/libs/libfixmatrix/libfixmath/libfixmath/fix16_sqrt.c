@@ -1,5 +1,5 @@
 #include "fix16.h"
-
+#ifndef __NDS__
 /* The square root algorithm is quite directly from
  * http://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Binary_numeral_system_.28base_2.29
  * An important difference is that it is split to two parts
@@ -83,3 +83,4 @@ fix16_t fix16_sqrt(fix16_t inValue)
 
     return (neg ? -(fix16_t)result : (fix16_t)result);
 }
+#endif
