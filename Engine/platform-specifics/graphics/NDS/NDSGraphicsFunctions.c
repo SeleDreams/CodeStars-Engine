@@ -49,7 +49,8 @@ int csNDSGraphicsCreate(csGraphicsContext *context, unsigned int width, unsigned
     lcdMainOnTop();
 
     //setup the sub screen for basic printing
-    consoleDemoInit();
+   // consoleDemoInit();
+    consoleDebugInit(DebugDevice_NOCASH);
 
     // Setup the Main screen for 3D
     videoSetMode(MODE_0_3D);

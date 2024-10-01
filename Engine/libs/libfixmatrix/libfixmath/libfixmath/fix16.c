@@ -66,7 +66,7 @@ fix16_t fix16_ssub(fix16_t a, fix16_t b)
  * detection.
  */
  
-#if !defined(FIXMATH_NO_64BIT) && !defined(FIXMATH_OPTIMIZE_8BIT)
+#if !defined(FIXMATH_NO_64BIT) && !defined(FIXMATH_OPTIMIZE_8BIT) && !defined(__NDS__)
 fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
 {
 	int64_t product = (int64_t)inArg0 * inArg1;
@@ -111,7 +111,7 @@ fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
  * and this is a relatively good compromise for compilers that do not support
  * uint64_t. Uses 16*16->32bit multiplications.
  */
-#if defined(FIXMATH_NO_64BIT) && !defined(FIXMATH_OPTIMIZE_8BIT)
+#if defined(FIXMATH_NO_64BIT) && !defined(FIXMATH_OPTIMIZE_8BIT) && !defined(__NDS__)
 fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
 {
 	// Each argument is divided to 16-bit parts.
@@ -172,7 +172,7 @@ fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
  * Uses 8*8->16bit multiplications, and also skips any bytes that
  * are zero.
  */
-#if defined(FIXMATH_OPTIMIZE_8BIT)
+#if defined(FIXMATH_OPTIMIZE_8BIT) && !defined(__NDS__)
 fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
 {
     uint32_t _a = fix_abs(inArg0);
@@ -274,7 +274,7 @@ fix16_t fix16_smul(fix16_t inArg0, fix16_t inArg1)
  * Performs 32-bit divisions repeatedly to reduce the remainder. For this to
  * be efficient, the processor has to have 32-bit hardware division.
  */
-#if !defined(FIXMATH_NO_HARD_DIVISION)
+#if !defined(FIXMATH_NO_HARD_DIVISION) && !defined(__NDS__)
 #ifdef __GNUC__
 // Count leading zeros, using processor-specific instruction if available.
 #define clz(x) (__builtin_clzl(x) - (8 * sizeof(long) - 32))
@@ -430,7 +430,7 @@ fix16_t fix16_div(fix16_t a, fix16_t b)
  * This does the division manually, and is therefore good for processors that
  * do not have hardware division.
  */
-#if defined(FIXMATH_NO_HARD_DIVISION)
+#if defined(FIXMATH_NO_HARD_DIVISION) && !defined(__NDS__)
 fix16_t fix16_div(fix16_t a, fix16_t b)
 {
 	// This uses the basic binary restoring division algorithm.

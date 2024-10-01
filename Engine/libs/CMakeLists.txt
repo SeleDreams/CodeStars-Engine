@@ -22,11 +22,12 @@ if (NintendoDS)
             -DFLECS_PIPELINE
             -DFLECS_SYSTEM
             -DFLECS_MODULE
+            #-UFLECS_USE_OS_ALLOC
             -DFIXMATH_FAST_SIN
-            -DFIXMATH_NO_64BIT
             -DFIXMATH_SIN_LUT
             -DFIXMATH_NO_ROUNDING
             -DFIXMATH_NO_OVERFLOW
+            -DFIXMATH_NO_HARD_DIVISION
     )
     option(FLECS_PIC "" ON)
 endif()

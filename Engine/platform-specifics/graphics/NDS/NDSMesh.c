@@ -9,24 +9,25 @@
 #include "core/scene/scene.h"
 
 static inline void setupProjectionMatrix(m4x4 *nds_mat,const csCamera *cam) {
-    csMatTo2012(&nds_mat->m, &cam->projection);
+    csMatTo2012(nds_mat->m, &cam->projection);
     glMatrixMode(GL_PROJECTION);
     glLoadMatrix4x4(nds_mat);
 }
 
 static inline void setupModelViewMatrix(m4x4 *nds_mat,csTransform *camTransform) {
-    csMatTo2012(&nds_mat->m, &camTransform->transform);
+    csMatTo2012(nds_mat->m, &camTransform->transform);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrix4x4(nds_mat);
 }
 
 static inline void applyTransformMatrix(m4x4 *nds_mat,csTransform *transform) {
-    csMatTo2012(&nds_mat->m, &transform->transform);
+    csMatTo2012(nds_mat->m, &transform->transform);
     glMultMatrix4x4(nds_mat);
 }
 
 void drawMesh(const csMesh *mesh) {
     unsigned int realIndex;
+
     for (int index = 0; index < mesh->indices_count; index++) {
         realIndex = mesh->indices[index] * 3;
 
@@ -42,6 +43,7 @@ void drawMesh(const csMesh *mesh) {
             );
     }
 
+
 }
 m4x4 nds_mat;
 void csMeshDraw(ecs_iter_t *it) {
@@ -52,12 +54,13 @@ void csMeshDraw(ecs_iter_t *it) {
 
     setupProjectionMatrix(&nds_mat,cam);
     setupModelViewMatrix(&nds_mat,camTransform);
+
+    glStoreMatrix(30);
     glBegin(GL_TRIANGLES);
     for (int i = 0; i < it->count; i++) {
-        glPushMatrix();
+        glRestoreMatrix(30);
         applyTransformMatrix(&nds_mat,&transform[i]);
         drawMesh(&mesh[i]);
-        glPopMatrix(1);
     }
     glEnd();
     glFlush(0);

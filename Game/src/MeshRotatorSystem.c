@@ -20,7 +20,7 @@ static csVec3 size = {
 };
 
 csVec3 rotationAxis = {
-    .x = 0, // 1/sqrt(2)
+    .x = csFixedFromInt(1), // 1/sqrt(2)
     .y = csFixedFromInt(1), // 1/sqrt(2)
     .z = 0
 };
@@ -30,14 +30,12 @@ static inline void updateRotation(csTransform *modelTransform,csFixed delta) {
     static csFixed angle;
     angle += csFixedMul(csFixedFromInt(3),delta);
     int angleInt = csFixedToInt(angle);
-    if (angleInt > 359) {
-        angle = csFixedFromInt(1);
-    }
     csQuat rot;
     csQuatFromAxisAngle(&rot, &rotationAxis, csFixedMul(angle,fix16_deg_to_rad_mult));
     csQuatNormalize(&rot, &rot);
 
     csTransformRotationSet(modelTransform,&rot);
+    //csTransformTranslate(modelTransform,&size);
     //csTransformRotate(modelTransform, &rot);
 }
 

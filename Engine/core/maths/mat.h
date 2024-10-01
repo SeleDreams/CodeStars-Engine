@@ -1,9 +1,10 @@
 #ifndef CODESTARS_ENGINE_CORE_MATHS_MAT_H
 #define CODESTARS_ENGINE_CORE_MATHS_MAT_H
+#include <assert.h>
 #include <fixmatrix.h>
 #include "vec.h"
 #include "quat.h"
-
+#include <stdio.h>
 extern csMat4 cs_matrix_cache[3];
 extern csQuat cs_quat_cache[3];
 extern csVec3 cs_vec_cache[3];
@@ -46,10 +47,9 @@ static inline void csMatPositionGet(csVec3 *dest,const csMat4 *mat) {
     dest->z = mat->data[14];
 }
 static inline void csMatTranslate(csMat4 *dest, const csVec3 *pos) {
-    csVec3 vec;
-    csMatPositionGet(&vec,dest);
-    csVec3Add(&vec,&vec,pos);
-    csMatPositionSet(dest,&vec);
+    csMatPositionGet(&cs_vec_cache[0],dest);
+    csVec3Add(&cs_vec_cache[0],&cs_vec_cache[0],pos);
+    csMatPositionSet(dest,&cs_vec_cache[0]);
 }
 
 static inline void csMatScaleSet(csMat4 *dest, const csVec3 *scale) {
@@ -111,18 +111,49 @@ static inline void csMatPerspective(csFixed fovy, csFixed aspect, csFixed zNear,
     matrix[14] = csFixedMul(csFixedMul(csFixedFromFloat(2.0f), zFar), csFixedMul(zNear, rangeInv));
     matrix[15] = 0;
 }
+/*
+static inline void printMatrix4x4(const csFixed matrix[16]) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            fprintf(stderr,"%.3f ", csFixedToFloat(matrix[i * 4 + j]));
+        }
+        fprintf(stderr,"\n");
+    }
+}
 
+static inline void printMatrix4x3(const int matrix[12]) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            fprintf(stderr,"%.3f ", (float)matrix[i * 4 + j] / 4096.0f);
 
+        }
+        fprintf(stderr,"\n");
+    }
+}
+
+static inline void csMatTo2012(int dest[12], const csMat4 *mat) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            dest[i * 4 + j]  = mat->data[i * 4 + j] >> 4;
+        }
+    }
+    printf("ORIGINAL\n");
+    printMatrix4x4(mat->data);
+    printf("Converted\n");
+    printMatrix4x3(dest);
+}*/
 static inline void csMatToFloat(csFMat4 *dest, const csMat4 *mat) {
     for (int i = 0; i < 16;i++)
     {
         (*dest)[i] = csFixedToFloat(mat->data[i]);
     }
 }
-static inline void csMatTo2012(csMat4_2012 *dest, const csMat4 *mat) {
-    for (int i = 0; i < 16;i++)
-    {
-        (*dest)[i] = mat->data[i] >> 4;
+// FIXME : fix the 4x3 implementation for performance improvement
+static inline void csMatTo2012(int dest[16], const csMat4 *mat) {
+    for (int i = 0; i < 16; i++) {
+        dest[i] = mat->data[i] >> 4;
     }
 }
+
+
 #endif

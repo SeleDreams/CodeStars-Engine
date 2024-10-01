@@ -9,8 +9,8 @@ typedef struct csMemPoolAllocator {
     csMemoryChunk *memoryChunk;
 } csMemPoolAllocator;
 
-#define POOL_SIZE 256  // Adjust this size based on your needs
-#define ALIGNMENT 4     // Adjust alignment as needed
+#define POOL_SIZE 512  // Adjust this size based on your needs
+#define ALIGNMENT 8     // Adjust alignment as needed
 typedef struct MemoryBlock {
     struct MemoryBlock* next;
     size_t size;

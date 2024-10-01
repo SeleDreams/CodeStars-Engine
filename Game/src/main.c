@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
 
 
-    for (int i = 0; i < 70; i++) {
+    for (int i = 0; i < 100; i++) {
         csVec3 pos = {csFixedFromInt(rand() % 41-20), csFixedFromInt(rand()  % 11-5), csFixedFromInt(rand() %  41-20)};
 
         csMesh mesh;
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
         csGraphicsFrameEnd(context);
         int fps = csFixedToInt(csFixedDiv(csFixedFromInt(1), delta));
 
-        printf("fps : %i\n",fps);
+        //printf("fps : %i\n",fps);
     }
     csSceneDestroy(scene);
     csGraphicsContextDestroy(context);

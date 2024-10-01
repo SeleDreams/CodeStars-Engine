@@ -9,7 +9,7 @@ typedef fix16_t csFixed;
 typedef qf16 csQuat;
 typedef float csFMat4[16];
 typedef mf16 csMat4;
-typedef int csMat4_2012[16];
+typedef int csMat4_2012[12];
 
 #define csFixedFromInt(value) ((csFixed)F16(value))
 #define csFixedFromUInt(value) ((fix16_t)((value) * 65536.0 + 0.5))
