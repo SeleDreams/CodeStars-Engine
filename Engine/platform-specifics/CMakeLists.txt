@@ -1,4 +1,6 @@
 set(PLATFORM_SPECIFICS ${PROJECT_NAME}_platform-specifics)
+message(${PLATFORM_SPECIFICS})
 add_library(${PLATFORM_SPECIFICS} INTERFACE)
 add_subdirectory(graphics)
-target_link_libraries(${PROJECT_NAME} INTERFACE ${PLATFORM_SPECIFICS})
+add_subdirectory(main)
+target_link_libraries(${PROJECT_NAME} INTERFACE ${PLATFORM_SPECIFICS} )

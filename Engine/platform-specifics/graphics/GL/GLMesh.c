@@ -40,15 +40,12 @@ static csVec3 size = {
 .y = 1 << 16,
 .z = 1 << 16
 };
-static csVec3 up = {
-.x = 1 << 16,
-.y = 1 << 16,
-.z = 0 << 16
-};
 
 static csMat4 trans;
 static csMat4 scale;
 static csMat4 rot;
+
+static csVec3 upVector;
 
 static csQuat rotation;
 void csMeshDraw(csMesh *mesh, csShader *shader)
@@ -61,13 +58,16 @@ void csMeshDraw(csMesh *mesh, csShader *shader)
     }
     
     glUseProgram(((glShader*)shader)->program);
-    csQuatFromAxisAngle(&rotation,&up,csFixedDegToRad(angle));
+    csVec3 axis;
+    csVec3Add(&axis,&csVec3Forward,&csVec3Right);
+    csQuatFromAxisAngle(&rotation,&csVec3Right,csFixedDegToRad(angle));
     csMatSetRotation(&rot,&rotation);
     csMatFillDiagonal(&mesh->modelTransform,1 << 16);
     csMatMul(&mesh->modelTransform, &mesh->modelTransform, &scale);
     csMatMul(&mesh->modelTransform,&mesh->modelTransform, &rot);
     csMatMul(&mesh->modelTransform,&mesh->modelTransform,&trans);
-
+    csVec3MulM(&upVector,&mesh->modelTransform,&csVec3Up);
+    csVec3Print(&upVector);
     //csMatSet(&mesh->modelTransform,3,3,1 << 16);
     csMatToFloat(&fMat,&mesh->modelTransform,0);
     csMatToFloat(&fProj,&proj,0);

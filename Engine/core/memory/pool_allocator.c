@@ -47,3 +47,6 @@ csMemoryChunk *csMemPoolAllocatorAllocPool(csMemPoolAllocator *allocator, size_t
     chunk->next = NULL;
     return blockBegin;
 }
+
+void *csMalloc(size_t size) {return csMemPoolAllocatorAlloc(&csMemPoolAllocatorGlobal,size);}
+void csFree(void *ptr,size_t size) {csMemPoolAllocatorDealloc(&csMemPoolAllocatorGlobal,ptr,size);}

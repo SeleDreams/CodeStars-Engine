@@ -5,7 +5,6 @@ if (${extra_count} GREATER 0)
 list(GET extra_args 0 arm7)
 endif ()
 if (NOT arm7)
-message(${CMAKE_BINARY_DIR}/${name}.nds)
 add_custom_command(
     TARGET ${arm9}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin

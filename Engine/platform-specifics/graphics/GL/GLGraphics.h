@@ -28,7 +28,7 @@ typedef struct csGLGraphicsContext
     int window_count;
     int main_window;
     int framerate;
-    float delta;
+    csFixed delta;
 } csGLGraphicsContext;
 
 void csGLGraphicsInit(void);

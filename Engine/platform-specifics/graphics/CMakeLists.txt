@@ -1,5 +1,7 @@
 add_library(${PLATFORM_SPECIFICS}_graphics INTERFACE)
 if (USE_GL)
 add_subdirectory(GL)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "NintendoDS")
+add_subdirectory(DS)
 endif()
 target_link_libraries(${PLATFORM_SPECIFICS} INTERFACE ${PLATFORM_SPECIFICS}_graphics)

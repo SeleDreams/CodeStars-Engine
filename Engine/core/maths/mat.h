@@ -6,6 +6,7 @@
 #include "quat.h"
 
 typedef float csFMat4[4][4];
+static inline const csFixed* csMatRaw(const csMat4 *mat) { return (const csFixed*)mat->data; }
 
 static inline void csMatFill(csMat4 *dest, const csFixed value) { mf16_fill(dest,value);}
 static inline void csMatFillDiagonal(csMat4 *dest, const int value) {mf16_fill_diagonal(dest,value);}
@@ -43,7 +44,7 @@ static inline csMat4 csMatTranslate(const csMat4 *src,const csVec3 *pos)
     return translation;
 }
 
-static inline void csMatGetPosition(csVec3 *dest, csMat4 *mat)
+static inline void csMatGetPosition(csVec3 *dest, const csMat4 *mat)
 {
     dest->x = csMatGet(mat,3,0);
     dest->y = csMatGet(mat,3,1);

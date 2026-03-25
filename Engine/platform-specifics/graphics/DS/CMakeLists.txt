@@ -1,0 +1,5 @@
+add_library(ds-graphics DSMesh.c DSGraphics.c)
+message("The ds graphics are used")
+target_include_directories(ds-graphics PRIVATE ${PROJECT_SOURCE_DIR} ${BLOCKSDS_INCLUDES})
+target_link_libraries(ds-graphics ${PROJECT_NAME}_core ${PROJECT_NAME}_libs)
+target_link_libraries(${PLATFORM_SPECIFICS}_graphics INTERFACE ds-graphics)

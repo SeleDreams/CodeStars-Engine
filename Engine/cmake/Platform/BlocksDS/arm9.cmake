@@ -1,17 +1,12 @@
 function(set_arm9_compile_options name)
-set(ARCH_FLAGS -march=armv5te -mtune=arm946e-s)
-target_compile_definitions(${name} PRIVATE __NDS__ ARM9)
-target_compile_options(${name} PRIVATE ${ARCH_FLAGS} -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fomit-frame-pointer)
-
-target_compile_options(${name} PRIVATE
-    $<$<COMPILE_LANGUAGE:ASM>:-x assembler-with-cpp>
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions -fno-rtti>
-)
-
-target_link_options(${name} PRIVATE -mthumb -mthumb-interwork -Wl,-Map,${name}.map -Wl,--gc-sections -nostdlib -T${BLOCKSDS}/sys/crts/ds_arm9.mem -T${BLOCKSDS}/sys/crts/ds_arm9.ld -Wl,--no-warn-rwx-segments)
+set(ARCH_FLAGS "-march=armv5te -mtune=arm946e-s")
+set(DEFINE_FLAGS "-D__NDS__ -DARM9")
+set(CMAKE_C_FLAGS "${ARCH_FLAGS} ${DEFINE_FLAGS} -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fomit-frame-pointer" CACHE STRING "CMAKE C flags" FORCE)
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fno-exceptions -fno-rtti" CACHE STRING "CMAKE CPP Flags" FORCE)
+set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp" CACHE STRING "CMAKE ASM FLAGS" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS "-mthumb -mthumb-interwork -Wl,-Map,${name}.map -Wl,--gc-sections -nostdlib -T${BLOCKSDS}/sys/crts/ds_arm9.mem -T${BLOCKSDS}/sys/crts/ds_arm9.ld -Wl,--no-warn-rwx-segments" CACHE STRING "CMAKE LINKER FLAGS" FORCE)
 target_include_directories(${name} SYSTEM PRIVATE ${BLOCKSDS_INCLUDES} ${WONDERFUL_INCLUDES})
 target_link_directories(${name} PRIVATE ${BLOCKSDS_LIBRARIES})
-target_link_libraries(${name} -Wl,--start-group nds9 c gcc -Wl,--end-group)
 endfunction()
 
 function(add_arm9_executable name src)

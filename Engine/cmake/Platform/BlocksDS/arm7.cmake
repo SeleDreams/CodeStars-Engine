@@ -1,14 +1,11 @@
 function(set_arm7_compile_options name)
 set(ARCH_FLAGS -mcpu=arm7tdmi -mtune=arm7tdmi)
-target_compile_definitions(${name} PRIVATE __NDS__ ARM7)
-target_compile_options(${name} PRIVATE ${ARCH_FLAGS} -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fomit-frame-pointer)
-
-target_compile_options(${name} PRIVATE
-    $<$<COMPILE_LANGUAGE:ASM>:-x assembler-with-cpp>
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions -fno-rtti>
-)
-target_link_options(${name} PRIVATE -mthumb -mthumb-interwork -Wl,-Map,${name}.map -Wl,--gc-sections -nostdlib -T${BLOCKSDS}/sys/crts/ds_arm7.ld -Wl,--no-warn-rwx-segments )
-target_include_directories(${name} SYSTEM PRIVATE ${BLOCKSDS_INCLUDES} SYSTEM ${WONDERFUL_INCLUDES})
+set(DEFINE_FLAGS -D__NDS__ -DARM7)
+set(CMAKE_C_FLAGS ${ARCH_FLAGS} ${DEFINE_FLAGS} -mthumb -mthumb-interwork -ffunction-sections -fdata-sections -fomit-frame-pointer )
+set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS} -fno-exceptions -fno-rtti)
+set(CMAKE_ASM_FLAGS ${CMAKE_C_FLAGS} -x assembler-with-cpp)
+set(CMAKE_EXE_LINKER_FLAGS -mthumb -mthumb-interwork -Wl,-Map,${name}.map -Wl,--gc-sections -nostdlib -T${BLOCKSDS}/sys/crts/ds_arm7.ld -Wl,--no-warn-rwx-segments)
+target_include_directories(${name} SYSTEM PUBLIC ${BLOCKSDS_INCLUDES} SYSTEM ${WONDERFUL_INCLUDES})
 target_link_directories(${name} PRIVATE ${BLOCKSDS_LIBRARIES})
 target_link_libraries(${name} -Wl,--start-group nds7 -lc -lgcc -Wl,--end-group)
 endfunction()

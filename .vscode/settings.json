@@ -2,7 +2,7 @@
     "cmake.configureSettings": {
         "CMAKE_INSTALL_PREFIX":"${workspaceFolder}/build",
         "CMAKE_FIND_DEBUG_MODE": "OFF",
-        "CMAKE_VERBOSE_MAKEFILE" : "OFF",
+        "CMAKE_VERBOSE_MAKEFILE" : "ON",
         "USE_GLEW" : "OFF"
     },
     "cmake.generator": "MinGW Makefiles",
@@ -97,6 +97,10 @@
         "maths.h": "c",
         "sdl_syswm.h": "c",
         "dwmapi.h": "c",
-        "fixquat.h": "c"
+        "fixquat.h": "c",
+        "stdio.h": "c",
+        "glgraphics.h": "c",
+        "main.h": "c",
+        "dsgraphics.h": "c"
     }
 }
